@@ -550,3 +550,10 @@ footer{ border-top:1px solid var(--hair); padding:64px 0 40px; position:relative
 .console--framer .send-title .accent,
 .console--framer .console__json .s{ color:var(--blue); }
 .console--framer .console__win{ border-radius:var(--r-lg); }
+
+/* --- atribuição de fonte nos scorecards --- */
+.stat .cap .src, .cap .src {
+  display:block; margin-top:6px; font-family:"JetBrains Mono",monospace;
+  font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--blue); opacity:.8; font-style:normal;
+}

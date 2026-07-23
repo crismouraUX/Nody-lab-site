@@ -933,3 +933,10 @@ body.menu-open .menu { clip-path: inset(0 0 0% 0); }
   color: var(--ink); background: var(--volt);
   box-shadow: 0 0 20px rgba(204, 255, 0, .3);
 }
+
+/* --- atribuição de fonte nos scorecards --- */
+.metric__label .src, .stat .src {
+  display: block; margin-top: .5em; font-family: var(--f-mono);
+  font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--volt); opacity: .75; font-style: normal;
+}
