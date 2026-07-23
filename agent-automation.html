@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agente de Automação — NODY/LAB</title>
+<meta name="description" content="Rotinas que rodam sozinhas: cobrança e boletos, lembretes, relatórios e integrações via webhook entre seus sistemas." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/nodylab.css" />
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="nodygrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6a4cf5"/><stop offset=".5" stop-color="#d44df0"/><stop offset="1" stop-color="#ff7a3d"/></linearGradient>
+</defs></svg>
+
+<div class="grain"></div>
+<div class="progress" id="progress"></div>
+
+<nav id="nav"><div class="nav-inner">
+  <a class="brand" href="index.html"><svg class="mk" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 16 L84 76 L16 76 Z" fill="none" stroke="url(#nodygrad)" stroke-width="8" stroke-linejoin="round"/><circle cx="50" cy="16" r="11" fill="url(#nodygrad)"/><circle cx="84" cy="76" r="11" fill="url(#nodygrad)"/><circle cx="16" cy="76" r="11" fill="url(#nodygrad)"/></svg> NODY<span class="sl">/</span>LAB</a>
+  <div class="nav-links">
+    <a class="link" href="solutions.html">Soluções</a>
+    <div class="nav-group link"><span class="navlbl">Setores</span><div class="nav-drop"><div class="nav-drop-inner"><a href="medical.html">Médico <span>01</span></a><a href="dental.html">Odontológico <span>02</span></a><a href="legal.html">Jurídico <span>03</span></a></div></div></div>
+    <div class="nav-group link active"><span class="navlbl">Agentes</span><div class="nav-drop"><div class="nav-drop-inner"><a href="agent-automation.html">Automação <span>04</span></a><a href="agent-second-brain.html">Second Brain <span>05</span></a></div></div></div>
+    <a class="btn btn-secondary link" href="https://wa.me/5551999999999" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="btn btn-primary" href="#build">Montar meu agente</a>
+  </div>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="hero-halo"></div>
+  <div class="wrap"><div class="hero-grid">
+    <div class="hero-copy">
+      <span class="pill-tag rv"><span class="lv"></span> Agente · automação de rotinas</span>
+      <h1 class="hero-h d-xxl rv">Rotinas que<br>rodam<br><span class="it">sozinhas</span>.</h1>
+      <p class="hero-sub body-lg rv">O agente conecta seus sistemas por webhooks e assume as rotinas: emite e envia boletos, lembra antes do vencimento, escala a inadimplência e entrega o resumo da semana.</p>
+      <div class="hero-cta rv"><a href="#build" class="btn btn-primary" data-mag>Montar automação</a><a href="#capabilities" class="btn btn-secondary" data-mag>Ver os fluxos</a></div>
+      <div class="hero-meta rv">
+        <div><div class="n"><span data-count="3">0</span>h/dia</div><div class="l">devolvidas à equipe</div></div>
+        <div><div class="n"><span data-count="0">0</span></div><div class="l">esquecimentos</div></div>
+        <div><div class="n">24/7</div><div class="l">janela de operação</div></div>
+      </div>
+    </div>
+    <div class="rv"><div class="showtile" id="showtile"><canvas id="glcanvas"></canvas><span class="badge">IA · rotinas rodando</span><div class="lbl">Agente de automação<small>gatilho entra, rotina sai</small></div></div></div>
+  </div></div>
+  <div class="hero-scroll" aria-hidden="true"><span class="mono" style="font-size:11px">scroll</span><span class="bar"></span></div>
+</header>
+
+<section class="pad"><div class="wrap manifesto">
+  <span class="eyebrow rv" style="display:block;margin-bottom:20px">Agente de automação</span>
+  <h2 class="big rv">Se acontece toda semana, <span class="grad-text">não devia precisar de você.</span> <span class="mut">Cobrança, lembrete, relatório, conferência, vira código que roda.</span></h2>
+  <div class="man-grid"><p class="rv">O agente de automação conecta seus sistemas por webhooks e assume as rotinas: emite e envia boletos, lembra o cliente antes do vencimento, escala a inadimplência com educação e entrega o resumo da semana no seu WhatsApp, sem ninguém apertar botão.</p><a class="link-arrow rv" href="#build">Montar automação <span>→</span></a></div>
+</div></section>
+
+<div class="marquee" aria-hidden="true"><div class="mtrack">
+  <span>Boleto lembrado</span><span>Agenda confirmada</span><span>Relatório automático</span><span>Sistemas conversando</span>
+  <span>Boleto lembrado</span><span>Agenda confirmada</span><span>Relatório automático</span><span>Sistemas conversando</span>
+</div></div>
+
+<section id="capabilities"><div class="pan-pin" id="panPin">
+  <span class="pan-hint">Continue rolando, os fluxos andam de lado</span>
+  <div class="pan-track" id="panTrack">
+    <div class="pan-intro"><span class="eyebrow">Triggers → ações</span><h2 class="d-lg">Gatilho entra.<br>Rotina sai.</h2><p style="color:var(--muted);max-width:34ch">Role para o lado pelos fluxos mais pedidos. Cada card é um par gatilho→ação em produção.</p></div>
+    <article class="panel grad violet"><div class="panel-body"><div class="idx">01 / fluxo</div><h3 class="d-md">Cobrança sem fricção</h3><p>Boleto emitido → enviado no WhatsApp → lembrete no vencimento → 2ª via automática → escalada humana só se precisar.</p></div><div class="panel-foot"><span class="chip">boletos</span><span class="chip">lembretes</span><span class="chip">inadimplência</span></div></article>
+    <article class="panel"><svg class="panel-art" viewBox="0 0 600 540" preserveAspectRatio="xMidYMid slice"><g id="scrollviz" stroke="#242424" fill="none" stroke-width="1.2"></g></svg><div class="panel-body"><div class="idx">02 / fluxo</div><h3 class="d-md">Agenda confirmada</h3><p>Consulta amanhã → confirmação automática → resposta “não posso” → reagendamento oferecido na mesma conversa.</p></div><div class="panel-foot"><span class="chip">confirmação</span><span class="chip">reagendamento</span><span class="chip">no-show ↓</span></div></article>
+    <article class="panel grad magenta"><div class="panel-body"><div class="idx">03 / fluxo</div><h3 class="d-md">Relatórios de sexta</h3><p>Sexta 18h → funil da semana compilado → resumo com números e alertas direto no WhatsApp do gestor.</p></div><div class="panel-foot"><span class="chip">kpis</span><span class="chip">semanal</span><span class="chip">zero esforço</span></div></article>
+    <article class="panel"><svg class="panel-art" viewBox="0 0 600 540" preserveAspectRatio="xMidYMid slice"><g id="wire"></g></svg><div class="panel-body"><div class="idx">04 / fluxo</div><h3 class="d-md">Integrações via webhook</h3><p>Evento em um sistema → ação em outro: CRM, agenda, planilha, gateway, ERP. Se tem API, o agente conversa.</p></div><div class="panel-foot"><span class="chip">n8n</span><span class="chip">webhooks</span><span class="chip">api-first</span></div></article>
+  </div>
+  <div class="pan-bar"><i id="panBar"></i></div>
+</div></section>
+
+<section class="wrap"><div class="stats">
+  <div class="stat rv"><div class="num"><span data-count="3">0</span><span class="u">h/dia</span></div><div class="cap">Devolvidas à equipe que faz rotina manual</div></div>
+  <div class="stat rv"><div class="num"><span data-count="0">0</span></div><div class="cap">Esquecimentos: a rotina roda, chova ou faça sol</div></div>
+  <div class="stat rv"><div class="num">24/7</div><div class="cap">Janela de operação, a madrugada também trabalha</div></div>
+  <div class="stat rv"><div class="num">∞</div><div class="cap">Escala: a décima rotina custa o mesmo que a primeira</div></div>
+</div></section>
+
+<section id="build" class="pad"><div class="wrap"><div class="bya-box rv">
+  <div class="term"><div class="term-bar"><i></i><i></i><i></i><span class="p">nody@lab:~/deploy</span></div><div class="term-body" id="term"></div></div>
+  <div class="bya-content"><span class="eyebrow">Build your agent</span><h2 class="d-lg">Aposente a rotina.</h2><p style="color:var(--muted);max-width:44ch;font-size:16px;line-height:1.5">Monte seu agente de automação: o tipo já vem selecionado. Diga quais rotinas roubam seu dia, devolvemos um plano de deploy em 24h úteis.</p><div class="bya-steps"><span><b>01</b> setor</span><span><b>02</b> agente</span><span><b>03</b> skills</span><span><b>04</b> deploy</span></div><a href="https://wa.me/5551999999999" target="_blank" rel="noopener" class="btn btn-primary" data-mag style="font-size:15px;padding:13px 22px;margin-top:6px">Falar no WhatsApp</a></div>
+</div></div></section>
+
+<section class="pad" id="contact" style="padding-top:0"><div class="wrap"><div class="cta rv"><div class="cta-halo"></div><div class="cta-body">
+  <h2 class="d-xl">Qual rotina rouba seu dia?</h2>
+  <p>Conte o que se repete toda semana. Devolvemos o fluxo automatizado e o plano de deploy em até 24h úteis.</p>
+  <a href="https://wa.me/5551999999999" target="_blank" rel="noopener" class="btn btn-primary" data-mag style="font-size:15px;padding:13px 24px">Falar no WhatsApp</a>
+</div></div></div></section>
+
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div><a class="brand" href="index.html" style="font-size:20px"><svg class="mk" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 16 L84 76 L16 76 Z" fill="none" stroke="url(#nodygrad)" stroke-width="8" stroke-linejoin="round"/><circle cx="50" cy="16" r="11" fill="url(#nodygrad)"/><circle cx="84" cy="76" r="11" fill="url(#nodygrad)"/><circle cx="16" cy="76" r="11" fill="url(#nodygrad)"/></svg> NODY<span class="sl">/</span>LAB</a><p style="color:#666;max-width:34ch;margin-top:14px;font-size:14px;line-height:1.4">Agentes de IA para negócios reais. Do caos ao sistema, de Porto Alegre para o mundo.</p></div>
+    <div class="foot-col"><h5>Soluções</h5><a href="solutions.html">Funil completo</a><a href="agent-automation.html">Automação</a><a href="agent-second-brain.html">Second Brain</a></div>
+    <div class="foot-col"><h5>Setores</h5><a href="medical.html">Médico</a><a href="dental.html">Odontológico</a><a href="legal.html">Jurídico</a></div>
+    <div class="foot-col"><h5>Contato</h5><a href="mailto:cristiano@nodylab.com">cristiano@nodylab.com</a><a href="https://wa.me/5551999999999" target="_blank" rel="noopener">WhatsApp</a><a href="https://instagram.com/nodylab" target="_blank" rel="noopener">@nodylab</a></div>
+  </div>
+  <div class="foot-giant" aria-hidden="true">NODY/LAB</div>
+  <div class="foot-bottom"><span>© 2026 Nody Lab · Porto Alegre, BR</span><span>Do caos ao <a href="index.html">sistema</a></span></div>
+</div></footer>
+
+<script src="js/vendor/three.min.js"></script>
+<script src="js/vendor/gsap.min.js"></script>
+<script src="js/vendor/ScrollTrigger.min.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

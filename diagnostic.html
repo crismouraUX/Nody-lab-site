@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NODY/LAB — diagnóstico de animações</title>
+<style>
+  body{ margin:0; background:#090909; color:#fff; font-family:system-ui,sans-serif; padding:40px; line-height:1.5; }
+  h1{ font-size:22px; margin:0 0 6px; }
+  .sub{ color:#999; margin-bottom:28px; font-size:14px; }
+  .row{ display:flex; align-items:center; gap:12px; padding:14px 0; border-top:1px solid #262626; font-size:15px; }
+  .row:last-of-type{ border-bottom:1px solid #262626; }
+  .k{ flex:1; }
+  .v{ font-family:ui-monospace,monospace; font-size:14px; }
+  .ok{ color:#3ad17a; } .bad{ color:#ff5566; } .warn{ color:#ffb020; }
+  .verdict{ margin-top:30px; padding:20px 22px; border-radius:14px; border:1px solid #262626; background:#141414; font-size:15px; }
+  .verdict b{ color:#0099ff; }
+  .test{ margin-top:26px; }
+  .test .lbl{ font-size:13px; color:#999; margin-bottom:8px; }
+  /* pure CSS animation — proves CSS keyframes work (NOT gated by reduced-motion) */
+  .cssbar{ height:10px; width:0; border-radius:6px; background:linear-gradient(90deg,#6a4cf5,#d44df0,#ff7a3d); animation:grow 1.6s ease-in-out infinite alternate; }
+  @keyframes grow{ from{ width:8% } to{ width:100% } }
+  .code{ font-family:ui-monospace,monospace; background:#1c1c1c; padding:2px 7px; border-radius:6px; color:#ddd; }
+</style>
+</head>
+<body>
+  <h1>NODY/LAB · diagnóstico de animações</h1>
+  <div class="sub">Esta página testa por que as animações podem não estar rodando. Abra no mesmo Chrome onde o site não animou.</div>
+
+  <div class="row"><span class="k">GSAP (motor de animação) carregou?</span><span class="v" id="gsap">…</span></div>
+  <div class="row"><span class="k">ScrollTrigger (efeitos de scroll) carregou?</span><span class="v" id="st">…</span></div>
+  <div class="row"><span class="k">Three.js (3D / shader) carregou?</span><span class="v" id="three">…</span></div>
+  <div class="row"><span class="k">WebGL disponível no navegador?</span><span class="v" id="webgl">…</span></div>
+  <div class="row"><span class="k">Sistema com "reduzir movimento" LIGADO?</span><span class="v" id="reduce">…</span></div>
+  <div class="row"><span class="k">requestAnimationFrame rodando? (contador)</span><span class="v" id="raf">0</span></div>
+
+  <div class="test">
+    <div class="lbl">Teste de animação CSS pura (deve pulsar da esquerda pra direita):</div>
+    <div class="cssbar"></div>
+  </div>
+
+  <div class="verdict" id="verdict">Analisando…</div>
+
+  <!-- same local libraries the real site uses -->
+  <script src="js/vendor/gsap.min.js"></script>
+  <script src="js/vendor/ScrollTrigger.min.js"></script>
+  <script src="js/vendor/three.min.js"></script>
+  <script>
+    function set(id, ok, txt){ var e=document.getElementById(id); e.textContent=txt; e.className="v "+(ok===true?"ok":ok==="warn"?"warn":"bad"); }
+    var gsapOK = typeof gsap !== "undefined";
+    var stOK   = typeof ScrollTrigger !== "undefined";
+    var threeOK= typeof THREE !== "undefined";
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var webglOK=(function(){ try{ var c=document.createElement("canvas"); return !!(c.getContext("webgl")||c.getContext("experimental-webgl")); }catch(e){ return false; } })();
+
+    set("gsap",  gsapOK, gsapOK ? "SIM ✓ (v"+(gsap.version||"?")+")" : "NÃO ✗ — arquivo não carregou");
+    set("st",    stOK,   stOK ? "SIM ✓" : "NÃO ✗ — arquivo não carregou");
+    set("three", threeOK, threeOK ? "SIM ✓ (r"+(THREE.REVISION||"?")+")" : "NÃO ✗ — arquivo não carregou");
+    set("webgl", webglOK, webglOK ? "SIM ✓" : "NÃO ✗ — WebGL desativado");
+    set("reduce", reduce ? "warn" : true, reduce ? "SIM ⚠ — animações desativadas pelo sistema" : "NÃO ✓ (ok)");
+
+    // rAF counter
+    var n=0; (function tick(){ n++; document.getElementById("raf").textContent=n; requestAnimationFrame(tick); })();
+
+    // verdict
+    var v=document.getElementById("verdict"), msg;
+    if(!gsapOK || !stOK || !threeOK){
+      msg = "<b>Causa: as bibliotecas locais não carregaram.</b> Isso costuma ser cache do Chrome mostrando a versão antiga. "+
+            "Solução: recarregue com <span class='code'>Ctrl + Shift + R</span> (recarga forçada), ou feche a aba e abra o index.html de novo.";
+    } else if(reduce){
+      msg = "<b>Causa encontrada: seu sistema está com \"reduzir movimento\" LIGADO.</b> O site respeita isso e fica estático de propósito. "+
+            "Para ver as animações: Windows > Configurações > Acessibilidade > Efeitos visuais > <b>Efeitos de animação: Ativado</b>. "+
+            "Depois recarregue a página com <span class='code'>Ctrl + Shift + R</span>.";
+    } else {
+      msg = "<b>Tudo certo aqui.</b> Bibliotecas carregadas, WebGL ok, movimento permitido. "+
+            "Se o site principal ainda estiver estático, é cache: abra o index.html e faça <span class='code'>Ctrl + Shift + R</span>.";
+    }
+    v.innerHTML = msg;
+  </script>
+</body>
+</html>
