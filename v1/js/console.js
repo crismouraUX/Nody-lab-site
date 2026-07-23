@@ -11,6 +11,11 @@
 
 const WEBHOOK_URL = ''; // e.g. 'https://n8n.nodylab.com/webhook/site-lead'
 
+/* Destino do lead */
+const WHATSAPP   = '5551999905455';        // +55 51 99990-5455
+const DEST_EMAIL = 'contato@nodylab.com';
+const COUNTDOWN  = 3;                       // segundos até abrir o WhatsApp
+
 const STEPS = {
   sector: {
     prompt: 'nody agent --init <span class="g">--select setor</span>',
@@ -90,6 +95,20 @@ function build() {
         <div class="console__steps"></div>
         <div class="console__json" aria-hidden="true"></div>
       </div>
+      <div class="console__sending">
+        <div class="send-ring">
+          <span class="sweep"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <g class="env"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2.5 6.5 12 13l9.5-6.5"/></g>
+            <path class="tick" d="M5 12.5 10 17.5 19 7.5"/>
+          </svg>
+        </div>
+        <div class="send-title" data-send-title>Enviando <span class="accent">perfil…</span></div>
+        <p class="send-sub" data-send-sub>Compilando <b>agent.json</b> e enviando para <b>${DEST_EMAIL}</b>.</p>
+        <div class="send-count" data-send-count hidden></div>
+        <a class="link-arrow send-skip" data-send-now hidden href="#">Abrir agora <span>→</span></a>
+      </div>
+
       <div class="console__success">
         <div class="ring">✓</div>
         <div class="big">Agent profile <span class="accent">enfileirado.</span></div>
@@ -281,7 +300,80 @@ async function submit() {
     console.info('[nody] WEBHOOK_URL não configurado — lead salvo em localStorage.nody_leads', payload);
   }
 
-  modal.classList.add('is-success');
+  await runSendSequence(payload);
+}
+
+/* ---------- sequência de envio: e-mail → contagem → WhatsApp ---------- */
+const labelOf = (group, id) => STEPS[group].opts.find((o) => o.id === id)?.t || id;
+
+function waMessage(p) {
+  const skills = p.skills.length ? p.skills.map((s) => `• ${labelOf('skills', s)}`).join('\n') : '• (a definir)';
+  return [
+    `Olá, Nody Lab! Montei meu agente no site.`,
+    ``,
+    `Nome: ${p.contact.name}`,
+    `Empresa: ${p.contact.company}`,
+    `E-mail: ${p.contact.email}`,
+    ``,
+    `Setor: ${labelOf('sector', p.sector)}`,
+    `Agente: ${labelOf('agent', p.agent)}`,
+    `Skills:`,
+    skills,
+  ].join('\n');
+}
+
+function runSendSequence(payload) {
+  const waURL = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waMessage(payload))}`;
+  const q = (s) => modal.querySelector(s);
+  const title = q('[data-send-title]'), sub = q('[data-send-sub]');
+  const countEl = q('[data-send-count]'), nowEl = q('[data-send-now]');
+
+  /* estado inicial — o overlay é reutilizado entre aberturas */
+  title.innerHTML = 'Enviando <span class="accent">perfil…</span>';
+  sub.innerHTML = `Compilando <b>agent.json</b> e enviando para <b>${DEST_EMAIL}</b>.`;
+  countEl.textContent = '';
+  countEl.hidden = true;
+  nowEl.hidden = true;
+  nowEl.href = waURL;
+  modal.classList.add('is-sending');
+
+  return new Promise((resolve) => {
+    /* fase 1: e-mail voando (1.5s) */
+    setTimeout(() => {
+      modal.classList.add('is-sent');
+      title.innerHTML = 'Perfil <span class="accent">enviado.</span>';
+      sub.innerHTML = `Uma cópia foi para <b>${DEST_EMAIL}</b>. Abrindo o WhatsApp em…`;
+      countEl.hidden = false;
+      nowEl.hidden = false;
+
+      /* fase 2: contagem regressiva */
+      let n = COUNTDOWN;
+      const tick = () => {
+        if (n === 0) {
+          clearInterval(timer);
+          window.open(waURL, '_blank', 'noopener');
+          modal.classList.remove('is-sending', 'is-sent');
+          modal.classList.add('is-success');
+          resolve();
+          return;
+        }
+        countEl.textContent = n--;
+        countEl.classList.remove('pulse');
+        void countEl.offsetWidth;            // reinicia a animação
+        countEl.classList.add('pulse');
+      };
+      tick();
+      const timer = setInterval(tick, 1000);
+
+      /* pular a espera */
+      nowEl.addEventListener('click', () => {
+        clearInterval(timer);
+        modal.classList.remove('is-sending', 'is-sent');
+        modal.classList.add('is-success');
+        resolve();
+      }, { once: true });
+    }, 1500);
+  });
 }
 
 /* ---------- open / close ---------- */
@@ -291,7 +383,7 @@ export function open(preset = {}) {
   Object.assign(state, { step: 0, skills: [], sector: null, agent: null, name: '', company: '', whatsapp: '', email: '' });
   if (preset.sector) { state.sector = preset.sector; state.step = 1; }
   if (preset.agent) { state.agent = preset.agent; }
-  modal.classList.remove('is-success');
+  modal.classList.remove('is-success', 'is-sending', 'is-sent');
   modal.classList.add('is-open');
   window.nodyLenis?.stop();
   renderStep();
