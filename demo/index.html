@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NODY/LAB — escolha a versão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ---------------------------------------------------------------------------
+   NODY/LAB — tela de abertura / seletor de versão.
+   Paleta volt: #CCFF00 sobre #0A0A0A. Uma tela só, sem scroll.
+   Componente central: shader WebGL (Three.js) recolorido pro verde elétrico.
+--------------------------------------------------------------------------- */
+:root{
+  --ink:#0A0A0A; --ink-2:#101010; --ink-3:#161616;
+  --volt:#CCFF00; --volt-deep:#9EC800;
+  --canvas:#F2F2EC; --graphite:#9A9A9A; --mute:#8A8A85;
+  --hair:rgba(242,242,236,.12); --hair-2:rgba(242,242,236,.2);
+  --f-display:'Bebas Neue','Arial Narrow',sans-serif;
+  --f-mono:'JetBrains Mono','Courier New',monospace;
+  --f-text:'Inter','Helvetica Neue',sans-serif;
+  --ease:cubic-bezier(.19,1,.22,1);
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; overflow:hidden; }           /* uma tela, sem scroll */
+body{
+  background:var(--ink); color:var(--canvas);
+  font-family:var(--f-text); -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column;
+  padding:clamp(14px,2.4vh,26px) clamp(16px,4vw,40px);
+  position:relative;
+}
+a{ color:inherit; text-decoration:none; }
+
+/* atmosfera */
+.grid{ position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background-image:linear-gradient(to right,var(--hair) 1px,transparent 1px);
+  background-size:calc(100% / 6) 100%;
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 22%,#000 78%,transparent);
+  mask-image:linear-gradient(to bottom,transparent,#000 22%,#000 78%,transparent); }
+.grain{ position:fixed; inset:0; z-index:60; pointer-events:none; opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.halo{ position:fixed; z-index:0; left:50%; top:46%; transform:translate(-50%,-50%);
+  width:min(70vh,760px); aspect-ratio:1; border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle,rgba(204,255,0,.13),transparent 62%); filter:blur(26px); }
+
+/* topo */
+.top{ position:relative; z-index:3; display:flex; align-items:center; justify-content:space-between; gap:16px; flex:0 0 auto; }
+.brand{ display:inline-flex; align-items:center; gap:.6rem; }
+.brand svg{ width:24px; height:24px; }
+.brand .word{ font-family:var(--f-display); font-size:1.5rem; letter-spacing:.04em; line-height:1; padding-top:.12em; }
+.brand .word i{ font-style:normal; color:var(--volt); }
+.mono{ font-family:var(--f-mono); font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--mute); }
+.status{ display:inline-flex; align-items:center; gap:.55em; }
+.status::before{ content:''; width:7px; height:7px; border-radius:50%; background:var(--volt);
+  box-shadow:0 0 12px var(--volt); animation:blink 2.2s ease infinite; }
+@keyframes blink{ 0%,100%{opacity:1} 50%{opacity:.25} }
+
+/* miolo — componente vivo + título */
+.mid{ position:relative; z-index:3; flex:1 1 auto; min-height:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:clamp(6px,1.4vh,16px); }
+#orb{ width:clamp(170px,31vh,330px); aspect-ratio:1; display:block; }
+.title{ font-family:var(--f-display); font-size:clamp(2rem,6.4vh,4.4rem); line-height:.9;
+  letter-spacing:.01em; text-transform:uppercase; text-align:center; }
+.title .v{ color:var(--volt); }
+.sub{ color:var(--mute); font-size:clamp(.82rem,1.6vh,.98rem); text-align:center; max-width:46ch; }
+
+/* opções */
+.opts{ position:relative; z-index:3; flex:0 0 auto;
+  display:grid; grid-template-columns:1fr 1fr; gap:clamp(10px,1.6vw,18px);
+  width:100%; max-width:900px; margin:0 auto; }
+.opt{ position:relative; overflow:hidden; display:flex; flex-direction:column; gap:.5rem;
+  border:1px solid var(--hair); background:linear-gradient(160deg,var(--ink-3),var(--ink-2) 60%);
+  padding:clamp(12px,2vh,20px) clamp(14px,1.6vw,22px);
+  transition:border-color .35s var(--ease), transform .35s var(--ease), background .35s; }
+.opt:hover, .opt:focus-visible{ border-color:rgba(204,255,0,.55); transform:translateY(-3px); outline:none; }
+.opt::before{ content:''; position:absolute; left:0; top:0; height:2px; width:0; background:var(--volt); transition:width .4s var(--ease); }
+.opt:hover::before, .opt:focus-visible::before{ width:100%; }
+.opt .k{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.opt .num{ font-family:var(--f-mono); font-size:.66rem; letter-spacing:.14em; color:var(--volt); }
+.opt .key{ font-family:var(--f-mono); font-size:.6rem; color:var(--mute); border:1px solid var(--hair);
+  border-radius:4px; padding:2px 7px; }
+.opt h2{ font-family:var(--f-display); font-size:clamp(1.35rem,3.1vh,2.1rem); line-height:.96; text-transform:uppercase; letter-spacing:.02em; }
+.opt p{ color:var(--mute); font-size:clamp(.74rem,1.45vh,.86rem); line-height:1.45; }
+.opt .tags{ display:flex; flex-wrap:wrap; gap:5px; margin-top:auto; padding-top:.35rem; }
+.opt .tags span{ font-family:var(--f-mono); font-size:.58rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--mute); border:1px solid var(--hair); border-radius:999px; padding:3px 8px; }
+.opt .go{ display:inline-flex; align-items:center; gap:.5em; margin-top:.5rem;
+  font-family:var(--f-mono); font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--volt); }
+.opt .go .arw{ transition:transform .35s var(--ease); }
+.opt:hover .go .arw{ transform:translateX(5px); }
+/* amostra de paleta por versão */
+.sw{ display:flex; gap:4px; }
+.sw i{ width:14px; height:14px; border-radius:3px; border:1px solid rgba(255,255,255,.14); }
+
+/* rodapé */
+.foot{ position:relative; z-index:3; flex:0 0 auto; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  border-top:1px solid var(--hair); padding-top:clamp(8px,1.2vh,14px); margin-top:clamp(10px,1.6vh,18px); }
+
+@media (max-width:720px){
+  .opts{ grid-template-columns:1fr; gap:8px; }
+  .opt p{ display:none; }              /* mantém tudo em uma tela no mobile */
+  #orb{ width:clamp(140px,22vh,220px); }
+  .foot{ display:none; }
+}
+@media (prefers-reduced-motion:reduce){ .opt,.opt::before,.go .arw{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="grid"></div>
+<div class="halo"></div>
+<div class="grain"></div>
+
+<!-- topo -->
+<header class="top">
+  <a class="brand" href="#">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M50 16 L84 76 L16 76 Z" stroke="#CCFF00" stroke-width="8" fill="none" stroke-linejoin="round"/>
+      <circle cx="50" cy="16" r="10" fill="#CCFF00"/><circle cx="84" cy="76" r="10" fill="#CCFF00"/><circle cx="16" cy="76" r="10" fill="#CCFF00"/>
+    </svg>
+    <span class="word">NODY<i>/</i>LAB</span>
+  </a>
+  <span class="mono status">demo · duas versões</span>
+</header>
+
+<!-- componente vivo + título -->
+<main class="mid">
+  <canvas id="orb" aria-label="Núcleo Nody, render 3D ao vivo"></canvas>
+  <h1 class="title">Escolha a <span class="v">versão</span></h1>
+  <p class="sub">Duas direções de design para o mesmo conteúdo. Clique num cartão, ou aperte <b>1</b> / <b>2</b>.</p>
+</main>
+
+<!-- opções -->
+<nav class="opts">
+  <a class="opt" href="../v1/index.html" data-key="1">
+    <span class="k"><span class="num">V1 · ORIGINAL</span><span class="key">1</span></span>
+    <h2>Volt</h2>
+    <p>Bebas Neue, verde elétrico sobre preto, herói 3D de partículas e o console “Build your agent”. Estética de laboratório.</p>
+    <span class="sw" aria-hidden="true"><i style="background:#CCFF00"></i><i style="background:#0A0A0A"></i><i style="background:#F2F2EC"></i></span>
+    <span class="tags"><span>bebas neue</span><span>volt</span><span>console</span><span>7 páginas</span></span>
+    <span class="go">Abrir versão <span class="arw">→</span></span>
+  </a>
+
+  <a class="opt" href="../index.html" data-key="2">
+    <span class="k"><span class="num">V2 · FRAMER</span><span class="key">2</span></span>
+    <h2>Canvas</h2>
+    <p>Geist com tracking negativo, canvas quase preto, shader WebGL, cartões gradiente e scroll horizontal pinado.</p>
+    <span class="sw" aria-hidden="true"><i style="background:#6a4cf5"></i><i style="background:#d44df0"></i><i style="background:#ff7a3d"></i></span>
+    <span class="tags"><span>geist</span><span>shader</span><span>scroll h.</span><span>7 páginas</span></span>
+    <span class="go">Abrir versão <span class="arw">→</span></span>
+  </a>
+</nav>
+
+<footer class="foot">
+  <span class="mono">nody/lab · seletor de versão</span>
+  <span class="mono">porto alegre, br</span>
+</footer>
+
+<!-- Three.js já vendorizado no site-framer (sem CDN, funciona offline) -->
+<script src="../js/vendor/three.min.js"></script>
+<script>
+(function(){
+  var canvas = document.getElementById("orb");
+  if(!canvas || typeof THREE === "undefined") return;
+
+  var renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true, alpha:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  var scene  = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = 3.4;
+
+  var uniforms = {
+    uTime:{ value:0 }, uMouse:{ value:new THREE.Vector2(0,0) },
+    cA:{ value:new THREE.Color(0x24330a) },   // verde musgo profundo
+    cB:{ value:new THREE.Color(0x9EC800) },   // volt deep
+    cC:{ value:new THREE.Color(0xCCFF00) }    // volt elétrico
+  };
+
+  var mat = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: [
+      "uniform float uTime; uniform vec2 uMouse; varying vec3 vNormal; varying float vD;",
+      "vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}",
+      "vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}",
+      "float snoise(vec3 v){",
+      "  const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);",
+      "  vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);",
+      "  vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);",
+      "  vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy; i=mod(i,289.0);",
+      "  vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));",
+      "  float n_=1.0/7.0; vec3 ns=n_*D.wyz-D.xzx;",
+      "  vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);",
+      "  vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);",
+      "  vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);",
+      "  vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));",
+      "  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;",
+      "  vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);",
+      "  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));",
+      "  p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;",
+      "  vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;",
+      "  return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));",
+      "}",
+      "void main(){ vNormal=normal; float t=uTime*0.35;",
+      "  float n=snoise(normal*1.6+vec3(t,t*0.8,uMouse.x*1.5));",
+      "  n+=0.5*snoise(normal*3.2+vec3(-t*1.3,t,uMouse.y*1.5));",
+      "  vD=n; vec3 pos=position+normal*n*0.28;",
+      "  gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0); }"
+    ].join("\n"),
+    fragmentShader: [
+      "uniform vec3 cA; uniform vec3 cB; uniform vec3 cC; varying vec3 vNormal; varying float vD;",
+      "void main(){ float g=smoothstep(-0.6,0.9,vD);",
+      "  vec3 col=mix(cA,cB,smoothstep(0.0,0.6,g));",
+      "  col=mix(col,cC,smoothstep(0.55,1.0,g));",
+      "  float fres=pow(1.0-abs(vNormal.z),2.0);",
+      "  col+=vec3(0.62,0.85,0.0)*fres*0.55;",          // borda volt
+      "  gl_FragColor=vec4(col,1.0); }"
+    ].join("\n")
+  });
+
+  var mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 20), mat);
+  scene.add(mesh);
+
+  // partículas volt em órbita
+  var PC=140, pg=new THREE.BufferGeometry(), pp=new Float32Array(PC*3);
+  for(var i=0;i<PC;i++){
+    var r=1.75+Math.random()*0.95, a=Math.random()*6.283, b=Math.acos(2*Math.random()-1);
+    pp[i*3]=r*Math.sin(b)*Math.cos(a); pp[i*3+1]=r*Math.sin(b)*Math.sin(a); pp[i*3+2]=r*Math.cos(b);
+  }
+  pg.setAttribute("position", new THREE.BufferAttribute(pp,3));
+  var pts = new THREE.Points(pg, new THREE.PointsMaterial({ color:0xCCFF00, size:0.022, transparent:true, opacity:0.55 }));
+  scene.add(pts);
+
+  function resize(){
+    var s = canvas.clientWidth || 260;
+    renderer.setSize(s, s, false);
+    camera.aspect = 1; camera.updateProjectionMatrix();
+  }
+  if(window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+  window.addEventListener("resize", resize);
+  resize();
+
+  // reage ao mouse na tela toda (sem scroll nesta página)
+  var m={x:0,y:0,tx:0,ty:0};
+  window.addEventListener("pointermove", function(e){
+    m.tx=(e.clientX/window.innerWidth -0.5)*2;
+    m.ty=(e.clientY/window.innerHeight-0.5)*2;
+  }, {passive:true});
+
+  var clock = new THREE.Clock();
+  (function loop(){
+    var t=clock.getElapsedTime();
+    m.x+=(m.tx-m.x)*0.05; m.y+=(m.ty-m.y)*0.05;
+    uniforms.uTime.value=t; uniforms.uMouse.value.set(m.x,m.y);
+    mesh.rotation.y = t*0.16 + m.x*0.45;
+    mesh.rotation.x = m.y*0.32;
+    pts.rotation.y  = -t*0.06;
+    renderer.render(scene,camera);
+    requestAnimationFrame(loop);
+  })();
+
+  // atalhos de teclado 1 / 2
+  document.addEventListener("keydown", function(e){
+    var el = document.querySelector('.opt[data-key="'+e.key+'"]');
+    if(el) window.location.href = el.getAttribute("href");
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soluções — NODY/LAB</title>
+<meta name="description" content="O funil completo operado por agentes: captura, qualificação, agendamento, follow-up, pagamento e retenção.">
+<meta property="og:title" content="Soluções — NODY/LAB">
+<meta property="og:description" content="O funil completo operado por agentes: captura, qualificação, agendamento, follow-up, pagamento e retenção.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/main.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"}}</script>
+</head>
+<body class="is-dark">
+
+<div class="loader" aria-hidden="true">
+  <svg class="loader__tri" viewBox="0 0 100 100">
+    <path d="M50 16 L84 76 L16 76 Z" stroke-linejoin="round"/>
+    <circle cx="50" cy="16" r="9"/><circle cx="84" cy="76" r="9"/><circle cx="16" cy="76" r="9"/>
+  </svg>
+  <div class="loader__line">
+    <span class="mono mono--dim">nody/lab — inicializando agentes</span>
+    <span class="loader__pct">000</span>
+  </div>
+</div>
+
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="nav">
+  <a href="index.html" class="nav__brand" aria-label="Nody Lab — início">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M50 16 L84 76 L16 76 Z" stroke="#CCFF00" stroke-width="8" fill="none" stroke-linejoin="round"/>
+      <circle cx="50" cy="16" r="10" fill="#CCFF00"/><circle cx="84" cy="76" r="10" fill="#CCFF00"/><circle cx="16" cy="76" r="10" fill="#CCFF00"/>
+    </svg>
+    <span class="nav__brand-word">NODY<i>/</i>LAB</span>
+  </a>
+  <div class="nav__links">
+    <a class="nav__link is-active" href="solutions.html">Soluções</a>
+    <div class="nav__group">
+      <button class="nav__link" aria-haspopup="true">Setores ▾</button>
+      <div class="nav__drop">
+        <a href="medical.html">Médico <span>01</span></a>
+        <a href="dental.html">Odontológico <span>02</span></a>
+        <a href="legal.html">Jurídico <span>03</span></a>
+      </div>
+    </div>
+    <div class="nav__group">
+      <button class="nav__link" aria-haspopup="true">Agentes ▾</button>
+      <div class="nav__drop">
+        <a href="agent-automation.html">Automação <span>⚙</span></a>
+        <a href="agent-second-brain.html">Second Brain <span>◉</span></a>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn--volt nav__cta" data-console><span>Build your agent</span><span class="btn-arrow">→</span></button>
+  <button class="nav__burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="menu" aria-hidden="true">
+  <a class="menu__item" href="index.html">Home <sup>00</sup></a>
+  <a class="menu__item" href="solutions.html">Soluções <sup>01</sup></a>
+  <a class="menu__item" href="medical.html">Médico <sup>02</sup></a>
+  <a class="menu__item" href="dental.html">Odontológico <sup>03</sup></a>
+  <a class="menu__item" href="legal.html">Jurídico <sup>04</sup></a>
+  <a class="menu__item" href="agent-automation.html">Automação <sup>05</sup></a>
+  <a class="menu__item" href="agent-second-brain.html">Second Brain <sup>06</sup></a>
+  <div class="menu__foot">
+    <button class="btn btn--volt" data-console><span>Build your agent</span><span class="btn-arrow">→</span></button>
+  </div>
+</div>
+
+<main>
+  <header class="hero__pin-space" data-hero>
+    <div class="hero__stage s-dark">
+      <div class="hero__grid-lines" aria-hidden="true"></div>
+      <div class="hero__canvas"><canvas data-nody data-shape="orbits" aria-hidden="true"></canvas></div>
+
+      <h1 class="hero__title display">
+        <span class="row" data-hero-fade><span>Soluções</span></span>
+        <span class="row" data-hero-fade><span>que viram</span></span>
+        <span class="row" data-hero-fade><span>sistema<span class="accent">.</span></span></span>
+      </h1>
+
+      <div class="hero__meta hero__meta--tl mono mono--dim">
+        <span>NODY/LAB — SOLUÇÕES</span>
+        <span>FUNIL OPERADO POR AGENTES</span>
+      </div>
+      <div class="hero__meta hero__meta--tr mono mono--dim">
+        <span>PORTO ALEGRE, BR</span>
+        <span>30.03°S · 51.23°W</span>
+      </div>
+      <div class="hero__meta hero__meta--bl mono">
+        <span class="hero__status">FUNIL ONLINE</span>
+      </div>
+      <div class="hero__meta hero__meta--br mono mono--dim">
+        <span>SCROLL PARA MONTAR</span>
+        <span>O SISTEMA ↓</span>
+      </div>
+
+      <div class="hero__late mono" data-hero-late>// cada etapa do funil, um agente de plantão</div>
+
+      <div class="hero__scroll" aria-hidden="true">
+        <span class="mono mono--dim">scroll</span>
+        <span class="bar"></span>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec s-light">
+    <div class="container manifesto">
+      <span class="kicker" data-reveal>O que é um agente</span>
+      <h2 class="manifesto__text" data-split style="margin-top:1.6rem">
+        Um agente não é um chatbot. <span class="serif-i volt">É um funcionário digital</span> com skills, memória, metas — <span class="dim">e escala infinita.</span>
+      </h2>
+      <div class="man-grid">
+        <p class="manifesto__body" data-reveal>
+          Chatbot responde pergunta. Agente executa funil: consulta sua agenda real, grava no CRM, cobra, insiste na medida certa e sabe a hora de chamar um humano para fechar.
+        </p>
+        <div data-reveal style="--d:.15s">
+          <a class="link-arrow" href="index.html#build">Montar o meu agora <span>→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hrail s-dark" data-hrail>
+    <div class="hrail__track">
+      <div class="hrail__intro">
+        <span class="kicker">O funil completo</span>
+        <h2 class="display">Seis etapas. <br><span class="t-outline">Zero vazamento.</span></h2>
+        <p style="color:var(--mute-on-dark);max-width:36ch">Do primeiro “oi” ao pagamento recorrente — arraste pelo funil que os agentes operam.</p>
+      </div>
+      <article class="hcard">
+        <span class="hcard__idx">01</span>
+        <div class="hcard__glow"></div>
+        <h3 class="hcard__title display">Captura</h3>
+        <p class="hcard__desc">Lead chega de anúncio, indicação ou Google — e recebe resposta em menos de 1 minuto, a qualquer hora. Primeiro a responder quase sempre leva.</p>
+        <ul class="hcard__tags"><li>whatsapp-api</li><li>resposta &lt;1min</li><li>24/7</li></ul>
+        
+      </article>
+      <article class="hcard">
+        <span class="hcard__idx">02</span>
+        <div class="hcard__glow"></div>
+        <h3 class="hcard__title display">Qualificação</h3>
+        <p class="hcard__desc">O agente separa curioso de comprador: serviço de interesse, urgência, orçamento. Você só gasta energia com quem pode fechar.</p>
+        <ul class="hcard__tags"><li>perfil</li><li>interesse</li><li>urgência</li></ul>
+        
+      </article>
+      <article class="hcard">
+        <span class="hcard__idx">03</span>
+        <div class="hcard__glow"></div>
+        <h3 class="hcard__title display">Agendamento</h3>
+        <p class="hcard__desc">Slots reais direto do seu CRM ou agenda. O lead escolhe, o agente grava, a recepção nem encosta.</p>
+        <ul class="hcard__tags"><li>crm-sync</li><li>agenda-real</li><li>confirmação</li></ul>
+        
+      </article>
+      <article class="hcard">
+        <span class="hcard__idx">04</span>
+        <div class="hcard__glow"></div>
+        <h3 class="hcard__title display">Follow-up</h3>
+        <p class="hcard__desc">Lead esfriou? Até 3 toques com intervalo e tom calibrados. É onde a maioria das operações perde dinheiro — a sua não vai mais.</p>
+        <ul class="hcard__tags"><li>3 toques</li><li>cadência</li><li>tom de marca</li></ul>
+        
+      </article>
+      <article class="hcard">
+        <span class="hcard__idx">05</span>
+        <div class="hcard__glow"></div>
+        <h3 class="hcard__title display">Pagamento</h3>
+        <p class="hcard__desc">Boleto emitido, enviado e lembrado sem humano no loop. Inadimplência tratada com a persistência educada de um robô.</p>
+        <ul class="hcard__tags"><li>boletos</li><li>lembretes</li><li>inadimplência</li></ul>
+        <a class="link-arrow hcard__link" href="agent-automation.html">Explorar <span>→</span></a>
+      </article>
+      <article class="hcard">
+        <span class="hcard__idx">06</span>
+        <div class="hcard__glow"></div>
+        <h3 class="hcard__title display">Retenção</h3>
+        <p class="hcard__desc">A base vira ativo: campanhas segmentadas por perfil, serviço e época do ano reativam quem já confia em você.</p>
+        <ul class="hcard__tags"><li>segmentação</li><li>campanhas</li><li>recorrência</li></ul>
+        
+      </article>
+    </div>
+    <div class="hrail__progress"><i></i></div>
+  </section>
+
+  <div class="marquee s-volt" aria-hidden="true">
+    <div class="marquee__inner">
+      <span>Captura</span>
+      <span>Qualificação</span>
+      <span>Agendamento</span>
+      <span>Follow-up</span>
+      <span>Pagamento</span>
+      <span>Retenção</span>
+      <span>Captura</span>
+      <span>Qualificação</span>
+      <span>Agendamento</span>
+      <span>Follow-up</span>
+      <span>Pagamento</span>
+      <span>Retenção</span>
+
+    </div>
+  </div>
+
+  <section class="sec s-dark">
+    <div class="container">
+      <div class="metrics">
+        <div class="metric" data-reveal>
+          <span class="metric__num">&lt;<span data-count="1">0</span><sub>min</sub></span>
+          <span class="metric__label">para a primeira resposta — humano médio leva horas</span>
+        </div>
+        <div class="metric" data-reveal style="--d:.08ss">
+          <span class="metric__num"><span data-count="3">0</span>×</span>
+          <span class="metric__label">follow-up automático em leads frios antes de desistir</span>
+        </div>
+        <div class="metric" data-reveal style="--d:.16ss">
+          <span class="metric__num"><span data-count="100">0</span>%</span>
+          <span class="metric__label">dos leads respondidos, registrados e mensuráveis no funil</span>
+        </div>
+        <div class="metric" data-reveal style="--d:.24ss">
+          <span class="metric__num"><span data-count="0">0</span></span>
+          <span class="metric__label">leads perdidos por “esqueci de responder” a partir do go-live</span>
+        </div>
+      </div>
+// INTEGRAÇÕES NATIVAS: WHATSAPP BUSINESS API · SIMPLES DENTAL · GOOGLE AGENDA · CRMS · N8N/WEBHOOKS · GATEWAYS DE PAGAMENTO
+    </div>
+  </section>
+
+
+  <section class="sec s-light bya" id="build">
+    <div class="container">
+      <div class="bya__box" data-reveal>
+        <div class="bya__term">
+          <div class="bya__term-bar"><i></i><i></i><i></i><span class="mono">nody@lab:~/deploy</span></div>
+          <div class="bya__term-body" data-bya-term></div>
+        </div>
+        <div class="bya__content">
+          <span class="kicker">Build your agent</span>
+          <h2 class="display">Seu funil, <span class="accent">operado.</span></h2>
+          <p>Escolha o setor, o tipo de agente e as skills — o console compila o perfil na hora. Nossa equipe volta com o plano de deploy em até 24h úteis.</p>
+          <div class="bya__steps">
+            <span class="mono"><b>01</b> setor</span>
+            <span class="mono"><b>02</b> agente</span>
+            <span class="mono"><b>03</b> skills</span>
+            <span class="mono"><b>04</b> deploy</span>
+          </div>
+          <button class="btn btn--volt" data-console><span>Abrir console</span><span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__cols">
+      <div class="footer__brand">
+        <span class="nav__brand-word" style="font-size:2rem">NODY<i>/</i>LAB</span>
+        <p>Agentes de IA para negócios reais. Do caos ao sistema — Porto Alegre para o mundo.</p>
+      </div>
+      <div>
+        <h5>Setores</h5>
+        <a href="medical.html">Médico</a>
+        <a href="dental.html">Odontológico</a>
+        <a href="legal.html">Jurídico</a>
+      </div>
+      <div>
+        <h5>Agentes</h5>
+        <a href="solutions.html">Soluções</a>
+        <a href="agent-automation.html">Automação</a>
+        <a href="agent-second-brain.html">Second Brain</a>
+      </div>
+      <div>
+        <h5>Contato</h5>
+        <a href="mailto:cristiano@nodylab.com">cristiano@nodylab.com</a>
+        <a href="https://wa.me/5551999999999" target="_blank" rel="noopener">WhatsApp</a>
+        <a href="https://instagram.com/nodylab" target="_blank" rel="noopener">@nodylab</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer__giant" aria-hidden="true">NODY/LAB</div>
+  <div class="footer__legal">
+    <span class="mono mono--dim">© 2026 NODY LAB · PORTO ALEGRE, BR</span>
+    <span class="mono mono--dim">V2.0 — CAOS → SISTEMA</span>
+  </div>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+<script type="module" src="js/console.js"></script>
+<script type="module" src="js/nody3d.js"></script>
+</body>
+</html>
