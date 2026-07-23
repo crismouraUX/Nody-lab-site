@@ -10,22 +10,193 @@
   function el(t,a){ var e=document.createElementNS(NS,t); for(var k in a) e.setAttribute(k,a[k]); return e; }
   function rand(a,b){ return a+Math.random()*(b-a); }
 
-  /* -------- Three.js living shader tile (hero) -------- */
+  /* -------- Three.js living shader tile (hero) --------
+     A esfera ruidosa continua sendo a base. As outras formas são campos de
+     distância (SDF) e os vértices da esfera são relaxados sobre a superfície
+     de cada uma. O ruído continua sendo amostrado no domínio da NORMAL DA
+     ESFERA, então cor, textura e movimento não mudam de forma para forma —
+     só a silhueta muda. Cada página escolhe seu ciclo por data-shapes. */
   (function three(){
     var tile = document.getElementById("showtile");
     var canvas = document.getElementById("glcanvas");
     if(!tile || !canvas || typeof THREE === "undefined") return;
+
+    /* ---------- helpers de SDF ---------- */
+    function len3(x,y,z){ return Math.sqrt(x*x+y*y+z*z); }
+    function smin(a,b,k){ var h=Math.max(0,Math.min(1,0.5+0.5*(b-a)/k)); return b*(1-h)+a*h-k*h*(1-h); }
+    function sdSphere(x,y,z,r){ return len3(x,y,z)-r; }
+    function sdEllipsoid(x,y,z,rx,ry,rz){
+      var k0=len3(x/rx,y/ry,z/rz), k1=len3(x/(rx*rx),y/(ry*ry),z/(rz*rz));
+      return k1<1e-8 ? -Math.min(rx,ry,rz) : k0*(k0-1.0)/k1;
+    }
+    function sdRoundBox(x,y,z,bx,by,bz,r){
+      var qx=Math.abs(x)-bx, qy=Math.abs(y)-by, qz=Math.abs(z)-bz;
+      return len3(Math.max(qx,0),Math.max(qy,0),Math.max(qz,0))
+           + Math.min(Math.max(qx,Math.max(qy,qz)),0) - r;
+    }
+    function sdCapsule(px,py,pz,ax,ay,az,bx,by,bz,r){
+      var pax=px-ax,pay=py-ay,paz=pz-az, bax=bx-ax,bay=by-ay,baz=bz-az;
+      var dd=bax*bax+bay*bay+baz*baz;
+      var h=dd<1e-8?0:Math.max(0,Math.min(1,(pax*bax+pay*bay+paz*baz)/dd));
+      return len3(pax-bax*h,pay-bay*h,paz-baz*h)-r;
+    }
+    /* tronco cônico aproximado por esferas — usado em raízes e na ponta do coração */
+    function sdTaper(px,py,pz,ax,ay,az,bx,by,bz,r1,r2,n){
+      var d=1e9;
+      for(var i=0;i<=n;i++){
+        var t=i/n;
+        var sx=ax+(bx-ax)*t, sy=ay+(by-ay)*t, sz=az+(bz-az)*t;
+        d=Math.min(d, sdSphere(px-sx,py-sy,pz-sz, r1+(r2-r1)*t));
+      }
+      return d;
+    }
+
+    /* ---------- as formas ---------- */
+    var SDF = {
+      orb: function(x,y,z){ return len3(x,y,z)-1.0; },
+
+      brain: function(x,y,z){
+        var d = sdEllipsoid(x, y-0.04, z, 0.95, 0.80, 1.00);
+        d = Math.max(d, -sdRoundBox(x, y-0.62, z, 0.05, 0.62, 0.80, 0.02));   // fissura sagital
+        d = smin(d, sdEllipsoid(x, y+0.52, z+0.46, 0.44, 0.25, 0.30), 0.14);  // cerebelo
+        d = smin(d, sdTaper(x,y,z, 0,-0.48,0.12, 0,-1.00,0.22, 0.15,0.10, 5), 0.12); // tronco
+        d += 0.032*Math.sin(7.0*x)*Math.sin(7.0*y+1.0)*Math.sin(7.0*z);       // giros
+        d += 0.016*Math.sin(13.0*x+0.5)*Math.sin(13.0*z+1.7);
+        return d;
+      },
+
+      tooth: function(x,y,z){
+        var d = sdRoundBox(x, y-0.40, z, 0.36, 0.24, 0.32, 0.17);             // coroa
+        d = smin(d, sdSphere(x-0.23,y-0.70,z-0.19,0.15), 0.11);               // cúspides
+        d = smin(d, sdSphere(x+0.23,y-0.70,z-0.19,0.15), 0.11);
+        d = smin(d, sdSphere(x-0.23,y-0.70,z+0.19,0.15), 0.11);
+        d = smin(d, sdSphere(x+0.23,y-0.70,z+0.19,0.15), 0.11);
+        d = smin(d, sdTaper(x,y,z, -0.20,0.10,0, -0.30,-0.98,0, 0.15,0.045,7), 0.13); // raízes
+        d = smin(d, sdTaper(x,y,z,  0.20,0.10,0,  0.30,-0.98,0, 0.15,0.045,7), 0.13);
+        return d;
+      },
+
+      heart: function(x,y,z){
+        var zz = z*1.45;                                                       // achatado
+        var d = sdSphere(x-0.29, y-0.30, zz, 0.43);
+        d = smin(d, sdSphere(x+0.29, y-0.30, zz, 0.43), 0.20);
+        d = smin(d, sdTaper(x,y,zz, 0,0.10,0, 0,-1.00,0, 0.56,0.03, 9), 0.26); // ponta
+        return d;
+      },
+
+      scale: function(x,y,z){
+        var d = sdCapsule(x,y,z, 0,-0.70,0, 0,0.68,0, 0.065);                 // poste
+        d = Math.min(d, sdRoundBox(x, y+0.80, z, 0.32,0.05,0.32, 0.04));      // base
+        d = Math.min(d, sdCapsule(x,y,z, -0.74,0.58,0, 0.74,0.58,0, 0.052));  // travessa
+        d = Math.min(d, sdSphere(x, y-0.76, z, 0.09));                        // pomo
+        for(var s=-1;s<=1;s+=2){
+          var px=0.74*s;
+          d = Math.min(d, sdCapsule(x,y,z, px,0.56,0, px,0.22,0, 0.022));     // hastes
+          d = Math.min(d, sdEllipsoid(x-px, y-0.16, z, 0.27,0.055,0.27));     // pratos
+        }
+        return d;
+      },
+
+      screen: function(x,y,z){
+        var d = sdRoundBox(x, y-0.18, z, 0.84, 0.52, 0.05, 0.06);             // painel
+        d = Math.min(d, sdRoundBox(x, y+0.52, z, 0.09, 0.22, 0.06, 0.03));    // pescoço
+        d = Math.min(d, sdRoundBox(x, y+0.76, z, 0.38, 0.045, 0.19, 0.03));   // base
+        return d;
+      }
+    };
+
+    /* ---------- geometria base ---------- */
+    var DETAIL = 16;
+    var geo = new THREE.IcosahedronGeometry(1, DETAIL);
+    var basePos = geo.attributes.position.array;
+    var baseNrm = geo.attributes.normal.array;
+    var VCOUNT  = geo.attributes.position.count;
+
+    /* projeta cada vértice da esfera na superfície do SDF (descida de gradiente) */
+    function buildShape(sdf, from, to, out){
+      var e = 0.0016;
+      for(var i=from;i<to;i++){
+        var o=i*3, px=baseNrm[o]*1.65, py=baseNrm[o+1]*1.65, pz=baseNrm[o+2]*1.65;
+        var gx=baseNrm[o], gy=baseNrm[o+1], gz=baseNrm[o+2];
+        for(var k=0;k<16;k++){
+          var d = sdf(px,py,pz);
+          gx = sdf(px+e,py,pz)-d; gy = sdf(px,py+e,pz)-d; gz = sdf(px,py,pz+e)-d;
+          var gl = len3(gx,gy,gz) || 1e-6; gx/=gl; gy/=gl; gz/=gl;
+          if(Math.abs(d) < 0.0009) break;
+          px -= gx*d*0.92; py -= gy*d*0.92; pz -= gz*d*0.92;
+        }
+        out.pos[o]=px; out.pos[o+1]=py; out.pos[o+2]=pz;
+        out.nrm[o]=gx; out.nrm[o+1]=gy; out.nrm[o+2]=gz;
+      }
+    }
+
+    /* normaliza a escala para todas as formas ocuparem o mesmo espaço visual */
+    function fitShape(s){
+      var m=0, i;
+      for(i=0;i<s.pos.length;i+=3){ var r=len3(s.pos[i],s.pos[i+1],s.pos[i+2]); if(r>m) m=r; }
+      if(m<1e-6) return;
+      var k=1.16/m;
+      for(i=0;i<s.pos.length;i++) s.pos[i]*=k;
+    }
+
+    var cache = {};
+    function shapeSync(name){                       // usado só para o orb (barato)
+      if(cache[name]) return cache[name];
+      var s={pos:new Float32Array(VCOUNT*3), nrm:new Float32Array(VCOUNT*3), done:true};
+      buildShape(SDF[name]||SDF.orb, 0, VCOUNT, s); fitShape(s); cache[name]=s; return s;
+    }
+
+    /* construção fatiada: nunca trava a thread principal */
+    var queue=[], building=null, buildAt=0, CHUNK=1400;
+    function requestShape(name){
+      if(cache[name] || name==="orb") return;
+      if(queue.indexOf(name)<0) queue.push(name);
+    }
+    function pumpBuild(){
+      if(!building){
+        if(!queue.length) return;
+        var n=queue.shift();
+        if(cache[n]) return;
+        building={name:n, s:{pos:new Float32Array(VCOUNT*3), nrm:new Float32Array(VCOUNT*3), done:false}};
+        buildAt=0;
+      }
+      var end=Math.min(buildAt+CHUNK, VCOUNT);
+      buildShape(SDF[building.name]||SDF.orb, buildAt, end, building.s);
+      buildAt=end;
+      if(buildAt>=VCOUNT){ fitShape(building.s); building.s.done=true; cache[building.name]=building.s; building=null; }
+    }
+
+    /* ---------- ciclo de formas da página ---------- */
+    var cycle = (tile.getAttribute("data-shapes")||"orb").split(",")
+                  .map(function(s){return s.trim();})
+                  .filter(function(s){return !!SDF[s];});
+    if(!cycle.length) cycle=["orb"];
+    var orb = shapeSync("orb");
+    for(var q=0;q<cycle.length;q++) requestShape(cycle[q]);
+
+    /* ---------- render ---------- */
     var renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true, alpha:true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
     camera.position.z = 3.4;
-    var geo = new THREE.IcosahedronGeometry(1, 20);
-    var uniforms = { uTime:{value:0}, uMouse:{value:new THREE.Vector2(0,0)},
+
+    var aPosA=new THREE.BufferAttribute(new Float32Array(orb.pos),3);
+    var aNrmA=new THREE.BufferAttribute(new Float32Array(orb.nrm),3);
+    var aPosB=new THREE.BufferAttribute(new Float32Array(orb.pos),3);
+    var aNrmB=new THREE.BufferAttribute(new Float32Array(orb.nrm),3);
+    aPosA.setUsage(THREE.DynamicDrawUsage); aNrmA.setUsage(THREE.DynamicDrawUsage);
+    aPosB.setUsage(THREE.DynamicDrawUsage); aNrmB.setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute("aPosA",aPosA); geo.setAttribute("aNrmA",aNrmA);
+    geo.setAttribute("aPosB",aPosB); geo.setAttribute("aNrmB",aNrmB);
+
+    var uniforms = { uTime:{value:0}, uMouse:{value:new THREE.Vector2(0,0)}, uMix:{value:0},
       cA:{value:new THREE.Color(0x6a4cf5)}, cB:{value:new THREE.Color(0xd44df0)}, cC:{value:new THREE.Color(0xff7a3d)} };
     var mat = new THREE.ShaderMaterial({ uniforms:uniforms,
       vertexShader:[
-        "uniform float uTime; uniform vec2 uMouse; varying vec3 vNormal; varying float vD;",
+        "uniform float uTime; uniform vec2 uMouse; uniform float uMix;",
+        "attribute vec3 aPosA; attribute vec3 aNrmA; attribute vec3 aPosB; attribute vec3 aNrmB;",
+        "varying vec3 vNormal; varying float vD;",
         "vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}",
         "vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}",
         "float snoise(vec3 v){",
@@ -46,9 +217,14 @@
         "  vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;",
         "  return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));",
         "}",
-        "void main(){ vNormal=normal; float t=uTime*0.35;",
+        "void main(){ float t=uTime*0.35;",
+        /* ruído amostrado na normal da ESFERA -> cor/textura idênticas em toda forma */
         "  float n=snoise(normal*1.6+vec3(t,t*0.8,uMouse.x*1.5)); n+=0.5*snoise(normal*3.2+vec3(-t*1.3,t,uMouse.y*1.5));",
-        "  vD=n; vec3 pos=position+normal*n*0.28; gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0); }"
+        "  vD=n;",
+        "  vec3 mn=normalize(mix(aNrmA,aNrmB,uMix)); vNormal=mn;",
+        "  vec3 base=mix(aPosA,aPosB,uMix);",
+        "  vec3 pos=base+mn*n*0.28;",
+        "  gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0); }"
       ].join("\n"),
       fragmentShader:[
         "uniform vec3 cA; uniform vec3 cB; uniform vec3 cC; varying vec3 vNormal; varying float vD;",
@@ -58,24 +234,66 @@
       ].join("\n")
     });
     var mesh = new THREE.Mesh(geo, mat); scene.add(mesh);
+
     var pc=120, pg=new THREE.BufferGeometry(), pp=new Float32Array(pc*3);
     for(var i=0;i<pc;i++){ var r=1.7+Math.random()*0.9, a=Math.random()*6.28, b=Math.acos(2*Math.random()-1);
       pp[i*3]=r*Math.sin(b)*Math.cos(a); pp[i*3+1]=r*Math.sin(b)*Math.sin(a); pp[i*3+2]=r*Math.cos(b); }
     pg.setAttribute("position", new THREE.BufferAttribute(pp,3));
     var pts = new THREE.Points(pg, new THREE.PointsMaterial({color:0xffffff,size:0.02,transparent:true,opacity:0.5})); scene.add(pts);
+
     function resize(){ var s=tile.clientWidth; renderer.setSize(s,s,false); camera.aspect=1; camera.updateProjectionMatrix(); }
     if(window.ResizeObserver) new ResizeObserver(resize).observe(tile);
     window.addEventListener("resize", resize); resize();
+
     var mouse={x:0,y:0,tx:0,ty:0};
     tile.addEventListener("pointermove",function(e){ var rc=tile.getBoundingClientRect(); mouse.tx=((e.clientX-rc.left)/rc.width-0.5)*2; mouse.ty=((e.clientY-rc.top)/rc.height-0.5)*2; });
     tile.addEventListener("pointerleave",function(){ mouse.tx=0; mouse.ty=0; });
+
+    /* ---------- máquina de estados do ciclo ---------- */
+    var idx=0, phase="hold", phaseT=0, HOLD=2.9, MORPH=1.7, pending=null;
+    function copyInto(attr, src){ attr.array.set(src); attr.needsUpdate=true; }
+    function easeInOut(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+
+    /* hook de QA, opt-in por ?orbdebug — sem custo em produção */
+    if(/[?&]orbdebug/.test(location.search)){
+      window.__orb={ cycle:cycle, cache:cache, geo:geo, uniforms:uniforms,
+        state:function(){ return {idx:idx, name:cycle[idx], phase:phase, mix:uniforms.uMix.value,
+          built:Object.keys(cache), queued:queue.slice()}; } };
+    }
+
     var clock=new THREE.Clock();
-    function loop(){ var t=clock.getElapsedTime(); mouse.x+=(mouse.tx-mouse.x)*0.05; mouse.y+=(mouse.ty-mouse.y)*0.05;
+    function loop(){
+      var dt=clock.getDelta(), t=clock.getElapsedTime();
+      mouse.x+=(mouse.tx-mouse.x)*0.05; mouse.y+=(mouse.ty-mouse.y)*0.05;
       uniforms.uTime.value=t; uniforms.uMouse.value.set(mouse.x,mouse.y);
       mesh.rotation.y=t*0.15+mouse.x*0.4; mesh.rotation.x=mouse.y*0.3; pts.rotation.y=-t*0.05;
-      renderer.render(scene,camera); if(!reduce) requestAnimationFrame(loop); }
+
+      if(cycle.length>1){
+        pumpBuild();
+        phaseT+=dt;
+        if(phase==="hold" && phaseT>=HOLD){
+          var nx=(idx+1)%cycle.length, nm=cycle[nx];
+          var target=(nm==="orb")?orb:cache[nm];
+          if(target && target.done){                    // só troca quando a forma está pronta
+            copyInto(aPosB,target.pos); copyInto(aNrmB,target.nrm);
+            pending=nx; phase="morph"; phaseT=0;
+          } else { requestShape(nm); phaseT=HOLD-0.25; } // tenta de novo em breve
+        } else if(phase==="morph"){
+          var k=Math.min(1, phaseT/MORPH);
+          uniforms.uMix.value=easeInOut(k);
+          if(k>=1){
+            idx=pending; var cur=(cycle[idx]==="orb")?orb:cache[cycle[idx]];
+            copyInto(aPosA,cur.pos); copyInto(aNrmA,cur.nrm);
+            uniforms.uMix.value=0; phase="hold"; phaseT=0;
+          }
+        }
+      }
+      renderer.render(scene,camera);
+      if(!reduce) requestAnimationFrame(loop);
+    }
     loop(); if(reduce) renderer.render(scene,camera);
   })();
+
 
   /* -------- animated SVG "tech" dashboards / arts (guarded by id) -------- */
   function dashboard(id,w,h,cols){
