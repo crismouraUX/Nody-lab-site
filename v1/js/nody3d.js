@@ -223,17 +223,8 @@ function mount(canvas) {
   const group = new THREE.Group();
   scene.add(group);
 
-  /* target + chaos position sets
-     O ciclo alterna entre o núcleo (o "orb" do V1) e a forma da página.
-     `target` vira um buffer vivo: a cada frame ele é a mistura de cycleA→cycleB,
-     então a montagem/respiração/arestas continuam funcionando sem mudança. */
-  const cycleNames = (canvas.getAttribute('data-cycle') || ('core,' + shapeName))
-    .split(',').map((s) => s.trim()).filter((s) => SHAPES[s]);
-  const cycleSets = cycleNames.map((n) => SHAPES[n](COUNT));
-  if (!cycleSets.length) cycleSets.push(SHAPES[shapeName](COUNT));
-  let cyA = 0, cyB = cycleSets.length > 1 ? 1 : 0, cyMix = 0, cyT = 0, cyLast = 0;
-  const CY_HOLD = 3.2, CY_MORPH = 1.8;
-  const target = new Float32Array(cycleSets[0]);
+  /* target + chaos position sets */
+  const target = SHAPES[shapeName](COUNT);
   const chaos = new Float32Array(COUNT * 3);
   const delays = new Float32Array(COUNT);
   for (let i = 0; i < COUNT; i++) {
@@ -339,20 +330,6 @@ function mount(canvas) {
     readProgress();
     uSmooth += (u - uSmooth) * 0.07;
     const ue = easeOutCubic(uSmooth);
-
-    /* ciclo de formas: só começa depois que a constelação terminou de montar */
-    if (cycleSets.length > 1 && !REDUCED && ue > 0.985) {
-      cyT += Math.min(t - cyLast, 0.05);   // getElapsedTime já avança o clock; derivamos o delta daqui
-      if (cyMix === 0 && cyT >= CY_HOLD) { cyT = 0; cyMix = 1e-4; }
-      else if (cyMix > 0) {
-        const k = Math.min(1, cyT / CY_MORPH);
-        cyMix = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-        if (k >= 1) { cyA = cyB; cyB = (cyB + 1) % cycleSets.length; cyMix = 0; cyT = 0; }
-      }
-      cyLast = t;
-      const A = cycleSets[cyA], B = cycleSets[cyB];
-      for (let i = 0; i < target.length; i++) target[i] = A[i] + (B[i] - A[i]) * cyMix;
-    }
 
     /* per-point staggered assembly + organic breathing */
     for (let i = 0; i < COUNT; i++) {

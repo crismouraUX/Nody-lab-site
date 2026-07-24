@@ -10,320 +10,72 @@
   function el(t,a){ var e=document.createElementNS(NS,t); for(var k in a) e.setAttribute(k,a[k]); return e; }
   function rand(a,b){ return a+Math.random()*(b-a); }
 
-  /* -------- Three.js living shader tile (hero) --------
-     O orb continua exatamente como era: icosfera deslocada por ruído simplex.
-     As outras formas são SÓLIDOS de verdade, montados com primitivas do Three
-     (esferas, cilindros, caixas, toros). Nada de deformar a esfera em balança:
-     malha de topologia esférica não vira objeto com partes separadas sem rasgar.
-     A transição é uma dissolução cruzada — o orb encolhe e some enquanto o
-     sólido cresce. Quando o sólido assenta, o ruído congela e a peça só gira
-     com o mouse. Paleta idêntica nos dois: violeta → magenta → laranja. */
+  /* -------- Three.js living shader tile (hero) -------- */
   (function three(){
     var tile = document.getElementById("showtile");
     var canvas = document.getElementById("glcanvas");
     if(!tile || !canvas || typeof THREE === "undefined") return;
-
     var renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true, alpha:true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    var scene  = new THREE.Scene();
+    var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
     camera.position.z = 3.4;
-
-    var root = new THREE.Group(); scene.add(root);
-
-    var C = { a:new THREE.Color(0x6a4cf5), b:new THREE.Color(0xd44df0), c:new THREE.Color(0xff7a3d) };
-
-    /* ---------- ruído simplex compartilhado ---------- */
-    var SNOISE = [
-      "vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}",
-      "vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}",
-      "float snoise(vec3 v){",
-      "  const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);",
-      "  vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);",
-      "  vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);",
-      "  vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy; i=mod(i,289.0);",
-      "  vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));",
-      "  float n_=1.0/7.0; vec3 ns=n_*D.wyz-D.xzx;",
-      "  vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);",
-      "  vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);",
-      "  vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);",
-      "  vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));",
-      "  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;",
-      "  vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);",
-      "  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));",
-      "  p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;",
-      "  vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;",
-      "  return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));",
-      "}"
-    ].join("\n");
-
-    /* ---------- ORB (inalterado, + opacidade/escala para a transição) ---------- */
-    var orbU = { uTime:{value:0}, uMouse:{value:new THREE.Vector2(0,0)}, uOpacity:{value:1},
-                 cA:{value:C.a}, cB:{value:C.b}, cC:{value:C.c} };
-    var orbMat = new THREE.ShaderMaterial({ uniforms:orbU, transparent:true,
+    var geo = new THREE.IcosahedronGeometry(1, 20);
+    var uniforms = { uTime:{value:0}, uMouse:{value:new THREE.Vector2(0,0)},
+      cA:{value:new THREE.Color(0x6a4cf5)}, cB:{value:new THREE.Color(0xd44df0)}, cC:{value:new THREE.Color(0xff7a3d)} };
+    var mat = new THREE.ShaderMaterial({ uniforms:uniforms,
       vertexShader:[
         "uniform float uTime; uniform vec2 uMouse; varying vec3 vNormal; varying float vD;",
-        SNOISE,
+        "vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}",
+        "vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}",
+        "float snoise(vec3 v){",
+        "  const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);",
+        "  vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);",
+        "  vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);",
+        "  vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy; i=mod(i,289.0);",
+        "  vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));",
+        "  float n_=1.0/7.0; vec3 ns=n_*D.wyz-D.xzx;",
+        "  vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);",
+        "  vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);",
+        "  vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);",
+        "  vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));",
+        "  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;",
+        "  vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);",
+        "  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));",
+        "  p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;",
+        "  vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;",
+        "  return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));",
+        "}",
         "void main(){ vNormal=normal; float t=uTime*0.35;",
         "  float n=snoise(normal*1.6+vec3(t,t*0.8,uMouse.x*1.5)); n+=0.5*snoise(normal*3.2+vec3(-t*1.3,t,uMouse.y*1.5));",
         "  vD=n; vec3 pos=position+normal*n*0.28; gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0); }"
       ].join("\n"),
       fragmentShader:[
-        "uniform vec3 cA; uniform vec3 cB; uniform vec3 cC; uniform float uOpacity;",
-        "varying vec3 vNormal; varying float vD;",
+        "uniform vec3 cA; uniform vec3 cB; uniform vec3 cC; varying vec3 vNormal; varying float vD;",
         "void main(){ float g=smoothstep(-0.6,0.9,vD); vec3 col=mix(cA,cB,smoothstep(0.0,0.6,g));",
         "  col=mix(col,cC,smoothstep(0.55,1.0,g)); float fres=pow(1.0-abs(vNormal.z),2.0); col+=fres*0.35;",
-        "  gl_FragColor=vec4(col,uOpacity); }"
+        "  gl_FragColor=vec4(col,1.0); }"
       ].join("\n")
     });
-    var orb = new THREE.Mesh(new THREE.IcosahedronGeometry(1,20), orbMat);
-    root.add(orb);
-
-    /* ---------- material dos SÓLIDOS: mesma paleta, com volume ---------- */
-    function solidMaterial(){
-      return new THREE.ShaderMaterial({
-        transparent:true, depthWrite:true, side:THREE.DoubleSide,
-        uniforms:{ uOpacity:{value:0}, uLo:{value:-1}, uHi:{value:1},
-                   cA:{value:C.a}, cB:{value:C.b}, cC:{value:C.c} },
-        vertexShader:[
-          "varying vec3 vN; varying vec3 vW;",
-          "void main(){ vN=normalize(normalMatrix*normal); vW=position;",
-          "  gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }"
-        ].join("\n"),
-        fragmentShader:[
-          "uniform vec3 cA; uniform vec3 cB; uniform vec3 cC;",
-          "uniform float uOpacity; uniform float uLo; uniform float uHi;",
-          "varying vec3 vN; varying vec3 vW;",
-          "void main(){",
-          /* eixo do gradiente calibrado nos limites reais da peça:
-             a paleta inteira (violeta -> magenta -> laranja) percorre a forma */
-          "  float t=(vW.y*0.86 + vW.x*0.38 - uLo)/max(uHi-uLo,0.001);",
-          "  float g=clamp(t,0.0,1.0);",
-          "  vec3 col=mix(cA,cB,smoothstep(0.0,0.62,g)); col=mix(col,cC,smoothstep(0.58,1.0,g));",
-          /* volume: difusa suave + rim, para ler como sólido e não como adesivo */
-          "  vec3 n=gl_FrontFacing?vN:-vN;",
-          "  float lam=0.74+0.30*max(dot(n,normalize(vec3(0.35,0.72,0.60))),0.0);",
-          "  float fres=pow(1.0-abs(n.z),2.0);",
-          "  col=col*lam+fres*0.34;",
-          "  col=mix(col, col*1.14, 0.6);",   /* um pouco mais vivo, sem sair da paleta */
-          "  gl_FragColor=vec4(col,uOpacity); }"
-        ].join("\n")
-      });
-    }
-
-    /* ---------- construtores de sólidos (primitivas de verdade) ----------
-       As transformações são assadas na própria geometria: assim `position`
-       no shader já é o espaço da peça inteira e o gradiente atravessa a
-       forma toda, em vez de reiniciar em cada primitiva. */
-    var _m4=new THREE.Matrix4(), _q=new THREE.Quaternion(), _e=new THREE.Euler();
-    function add(group, geo, mat, px,py,pz, rx,ry,rz, sx,sy,sz){
-      var g=geo.clone();
-      _e.set(rx||0,ry||0,rz||0); _q.setFromEuler(_e);
-      _m4.compose(new THREE.Vector3(px||0,py||0,pz||0), _q,
-                  new THREE.Vector3(sx===undefined?1:sx, sy===undefined?1:sy, sz===undefined?1:sz));
-      g.applyMatrix4(_m4);
-      var m=new THREE.Mesh(g, mat); group.add(m); return m;
-    }
-    var SEG = 40;
-
-    var BUILD = {
-      /* cérebro: dois lobos com fissura, cerebelo e tronco */
-      brain: function(mat){
-        var g=new THREE.Group(), lobe=new THREE.SphereGeometry(0.62, SEG, SEG);
-        for(var s=-1;s<=1;s+=2){
-          add(g, lobe, mat, s*0.30, 0.16, 0, 0,0,0, 1.0,0.95,1.15);
-          /* saliências dos giros, para não ficar uma bola lisa */
-          for(var i=0;i<7;i++){
-            var a=i/7*Math.PI*2;
-            add(g, new THREE.SphereGeometry(0.20,18,18), mat,
-                s*0.30+Math.cos(a)*0.40, 0.16+Math.sin(a)*0.34, Math.sin(a*1.7)*0.52);
-          }
-        }
-        add(g, new THREE.SphereGeometry(0.30,SEG,SEG), mat, 0,-0.44,-0.34, 0,0,0, 1.25,0.72,0.9); // cerebelo
-        add(g, new THREE.CylinderGeometry(0.13,0.10,0.42,24), mat, 0,-0.74,-0.16, 0.35,0,0);      // tronco
-        return g;
-      },
-
-      /* dente molar: coroa larga com sulco + duas raízes cônicas */
-      tooth: function(mat){
-        var g=new THREE.Group();
-        add(g, new THREE.SphereGeometry(0.56,SEG,SEG), mat, 0,0.30,0, 0,0,0, 1.06,0.90,0.92);   // coroa
-        for(var s=-1;s<=1;s+=2){
-          add(g, new THREE.SphereGeometry(0.30,SEG,SEG), mat, s*0.27,0.56,0, 0,0,0, 1,0.8,1);   // cúspides
-          add(g, new THREE.CylinderGeometry(0.24,0.055,0.95,28), mat, s*0.26,-0.44,0, 0,0,-s*0.16); // raízes
-        }
-        return g;
-      },
-
-      /* coração anatômico: massa ventricular, átrios e vasos */
-      heart: function(mat){
-        var g=new THREE.Group();
-        add(g, new THREE.SphereGeometry(0.60,SEG,SEG), mat, -0.04,0.02,0, 0,0,0.12, 1.02,1.16,0.92); // ventrículos
-        add(g, new THREE.CylinderGeometry(0.46,0.02,0.78,30), mat, 0.06,-0.70,0, 0,0,0.20);          // ápice
-        add(g, new THREE.SphereGeometry(0.30,SEG,SEG), mat, -0.34,0.52,0.02, 0,0,0, 1,0.86,1);       // átrio esq.
-        add(g, new THREE.SphereGeometry(0.26,SEG,SEG), mat,  0.36,0.46,-0.04, 0,0,0, 1,0.86,1);      // átrio dir.
-        /* vasos: arcos de toro + tubos retos */
-        add(g, new THREE.TorusGeometry(0.26,0.085,14,26,Math.PI*0.9), mat, 0.02,0.66,0, 0,0,-0.35);
-        add(g, new THREE.CylinderGeometry(0.085,0.085,0.42,20), mat, -0.26,0.92,0, 0,0,0.18);
-        add(g, new THREE.CylinderGeometry(0.07,0.07,0.34,20), mat,  0.30,0.86,-0.06, 0,0,-0.22);
-        add(g, new THREE.CylinderGeometry(0.06,0.06,0.30,18), mat,  0.05,0.95,0.10, 0.3,0,0.05);
-        return g;
-      },
-
-      /* balança da justiça: base, coluna, travessa, dois pratos suspensos */
-      scale: function(mat){
-        var g=new THREE.Group();
-        add(g, new THREE.CylinderGeometry(0.46,0.52,0.10,36), mat, 0,-0.92,0);                 // base
-        add(g, new THREE.CylinderGeometry(0.34,0.40,0.07,36), mat, 0,-0.84,0);
-        add(g, new THREE.CylinderGeometry(0.075,0.16,1.42,28), mat, 0,-0.10,0);                // coluna
-        add(g, new THREE.CylinderGeometry(0.19,0.19,0.10,30), mat, 0,0.62,0, Math.PI/2,0,0);   // eixo
-        add(g, new THREE.SphereGeometry(0.115,26,26), mat, 0,0.86,0);                          // pomo
-        add(g, new THREE.CylinderGeometry(0.05,0.05,0.16,20), mat, 0,0.73,0);
-        add(g, new THREE.CylinderGeometry(0.052,0.052,1.86,24), mat, 0,0.62,0, 0,0,Math.PI/2); // travessa
-        var pan=new THREE.SphereGeometry(0.30,34,20,0,Math.PI*2,Math.PI*0.5,Math.PI*0.5);      // tigela
-        for(var s=-1;s<=1;s+=2){
-          add(g, pan, mat, s*0.90,-0.16,0, 0,0,0, 1,0.55,1);
-          add(g, new THREE.SphereGeometry(0.055,16,16), mat, s*0.90,0.60,0);
-          for(var k=-1;k<=1;k+=2)                                                              // cordas
-            add(g, new THREE.CylinderGeometry(0.014,0.014,0.80,10), mat,
-                s*0.90+k*0.11,0.22,k*0.09, k*0.13,0,-k*0.14);
-        }
-        return g;
-      },
-
-      /* monitor desktop: painel, moldura, pescoço e pé */
-      screen: function(mat){
-        var g=new THREE.Group();
-        add(g, new THREE.BoxGeometry(1.70,1.08,0.11), mat, 0,0.34,0);        // painel
-        add(g, new THREE.BoxGeometry(1.54,0.92,0.13), mat, 0,0.36,0.03);     // tela
-        add(g, new THREE.BoxGeometry(0.20,0.30,0.10), mat, 0,-0.32,0);       // pescoço
-        add(g, new THREE.BoxGeometry(0.86,0.09,0.34), mat, 0,-0.52,0);       // pé
-        add(g, new THREE.CylinderGeometry(0.055,0.055,0.30,18), mat, 0,-0.32,0);
-        return g;
-      }
-    };
-
-    /* normaliza cada sólido para caber no mesmo espaço visual do orb */
-    var solids = {};
-    function getSolid(name){
-      if(solids[name]) return solids[name];
-      if(!BUILD[name]) return null;
-      var mat=solidMaterial(), g=BUILD[name](mat);
-      var box=new THREE.Box3().setFromObject(g), size=new THREE.Vector3(), ctr=new THREE.Vector3();
-      box.getSize(size); box.getCenter(ctr);
-      g.position.set(-ctr.x,-ctr.y,-ctr.z);
-      var wrap=new THREE.Group(); wrap.add(g);
-      /* normaliza pela extensão em TELA (x,y): usar a profundidade faria peças
-         fundas, como o cérebro, aparecerem menores que as chatas */
-      var k=2.42/Math.max(size.x,size.y);
-      wrap.scale.setScalar(k);
-      /* calibra o eixo do gradiente nos extremos reais da peça já centrada */
-      var lo=1e9, hi=-1e9;
-      g.traverse(function(m){
-        if(!m.isMesh) return;
-        var p=m.geometry.attributes.position, o=g.position;
-        for(var i=0;i<p.count;i++){
-          var v=(p.getY(i)+o.y)*0.86 + (p.getX(i)+o.x)*0.38;
-          if(v<lo) lo=v; if(v>hi) hi=v;
-        }
-      });
-      mat.uniforms.uLo.value=lo; mat.uniforms.uHi.value=hi;
-      wrap.visible=false; root.add(wrap);
-      solids[name]={group:wrap, mat:mat};
-      return solids[name];
-    }
-
-    /* ---------- partículas ---------- */
+    var mesh = new THREE.Mesh(geo, mat); scene.add(mesh);
     var pc=120, pg=new THREE.BufferGeometry(), pp=new Float32Array(pc*3);
     for(var i=0;i<pc;i++){ var r=1.7+Math.random()*0.9, a=Math.random()*6.28, b=Math.acos(2*Math.random()-1);
       pp[i*3]=r*Math.sin(b)*Math.cos(a); pp[i*3+1]=r*Math.sin(b)*Math.sin(a); pp[i*3+2]=r*Math.cos(b); }
     pg.setAttribute("position", new THREE.BufferAttribute(pp,3));
-    var pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xffffff,size:0.02,transparent:true,opacity:0.5}));
-    scene.add(pts);
-
+    var pts = new THREE.Points(pg, new THREE.PointsMaterial({color:0xffffff,size:0.02,transparent:true,opacity:0.5})); scene.add(pts);
     function resize(){ var s=tile.clientWidth; renderer.setSize(s,s,false); camera.aspect=1; camera.updateProjectionMatrix(); }
     if(window.ResizeObserver) new ResizeObserver(resize).observe(tile);
     window.addEventListener("resize", resize); resize();
-
     var mouse={x:0,y:0,tx:0,ty:0};
     tile.addEventListener("pointermove",function(e){ var rc=tile.getBoundingClientRect(); mouse.tx=((e.clientX-rc.left)/rc.width-0.5)*2; mouse.ty=((e.clientY-rc.top)/rc.height-0.5)*2; });
     tile.addEventListener("pointerleave",function(){ mouse.tx=0; mouse.ty=0; });
-
-    /* ---------- ciclo: orb -> sólido -> orb -> próximo sólido ---------- */
-    var forms=(tile.getAttribute("data-shapes")||"").split(",")
-      .map(function(s){return s.trim();}).filter(function(s){return !!BUILD[s];});
-    var fi=0, showing="orb", phase="hold", pt=0, HOLD_ORB=3.0, HOLD_SOLID=4.2, FADE=1.15;
-    var cur=null;                       // sólido ativo
-    var spin=0, noiseT=0;
-
-    function easeOutBack(t){ var c1=1.70158,c3=c1+1; return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2); }
-    function easeInOut(t){ return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
-
     var clock=new THREE.Clock();
-    function loop(){
-      var dt=Math.min(clock.getDelta(),0.05);
-      mouse.x+=(mouse.tx-mouse.x)*0.05; mouse.y+=(mouse.ty-mouse.y)*0.05;
-
-      if(forms.length){
-        pt+=dt;
-        if(phase==="hold"){
-          var lim = showing==="orb" ? HOLD_ORB : HOLD_SOLID;
-          if(pt>=lim){
-            if(showing==="orb"){ cur=getSolid(forms[fi]); if(cur) cur.group.visible=true; }
-            phase="fade"; pt=0;
-          }
-        } else {
-          var k=Math.min(1,pt/FADE), e=easeInOut(k);
-          var toSolid = showing==="orb";
-          var so = toSolid?e:1-e;                       // quanto do sólido está presente
-          orbU.uOpacity.value = 1-so;
-          orb.scale.setScalar(1-0.35*so);
-          orb.visible = so<0.995;
-          if(cur){
-            cur.mat.uniforms.uOpacity.value = so;
-            var g = toSolid ? easeOutBack(Math.max(k,0.001)) : e;   // sólido entra com leve overshoot
-            cur.group.scale.setScalar(toSolid ? 0.72+0.28*g : 1-0.28*(1-so)/1);
-          }
-          if(k>=1){
-            if(toSolid){ showing="solid"; }
-            else { showing="orb"; if(cur){cur.group.visible=false;} cur=null; fi=(fi+1)%forms.length; }
-            phase="hold"; pt=0;
-          }
-        }
-      }
-
-      /* ruído e giro automático só existem enquanto o orb está presente:
-         com o sólido montado, a peça fica parada e só responde ao mouse */
-      var orbness = orbU.uOpacity.value;
-      /* orb transparente ainda escreveria profundidade e esconderia o sólido
-         atrás dele — some com ele de vez e só escreve z quando está opaco */
-      orb.visible = orbness > 0.02;
-      orbMat.depthWrite = orbness > 0.95;
-      noiseT += dt*orbness;
-      spin   += dt*0.15*orbness;
-      orbU.uTime.value = noiseT;
-      orbU.uMouse.value.set(mouse.x, mouse.y);
-
-      root.rotation.y = spin + mouse.x*0.55;
-      root.rotation.x = mouse.y*0.32;
-      pts.rotation.y  = -clock.getElapsedTime()*0.05;
-
-      renderer.render(scene,camera);
-      if(!reduce) requestAnimationFrame(loop);
-    }
-
-    if(/[?&]orbdebug/.test(location.search)){
-      window.__orb={ forms:forms, solids:solids, getSolid:getSolid,
-        scene:scene, camera:camera, orb:orb, root:root, pts:pts,
-        state:function(){ return {showing:showing, phase:phase, form:forms[fi],
-          orbOpacity:+orbU.uOpacity.value.toFixed(2),
-          solidOpacity:cur?+cur.mat.uniforms.uOpacity.value.toFixed(2):null}; } };
-    }
-
+    function loop(){ var t=clock.getElapsedTime(); mouse.x+=(mouse.tx-mouse.x)*0.05; mouse.y+=(mouse.ty-mouse.y)*0.05;
+      uniforms.uTime.value=t; uniforms.uMouse.value.set(mouse.x,mouse.y);
+      mesh.rotation.y=t*0.15+mouse.x*0.4; mesh.rotation.x=mouse.y*0.3; pts.rotation.y=-t*0.05;
+      renderer.render(scene,camera); if(!reduce) requestAnimationFrame(loop); }
     loop(); if(reduce) renderer.render(scene,camera);
   })();
-
-
 
   /* -------- animated SVG "tech" dashboards / arts (guarded by id) -------- */
   function dashboard(id,w,h,cols){
