@@ -11,235 +11,235 @@
   function rand(a,b){ return a+Math.random()*(b-a); }
 
   /* -------- Three.js living shader tile (hero) --------
-     A esfera ruidosa continua sendo a base. As outras formas são campos de
-     distância (SDF) e os vértices da esfera são relaxados sobre a superfície
-     de cada uma. O ruído continua sendo amostrado no domínio da NORMAL DA
-     ESFERA, então cor, textura e movimento não mudam de forma para forma —
-     só a silhueta muda. Cada página escolhe seu ciclo por data-shapes. */
+     O orb continua exatamente como era: icosfera deslocada por ruído simplex.
+     As outras formas são SÓLIDOS de verdade, montados com primitivas do Three
+     (esferas, cilindros, caixas, toros). Nada de deformar a esfera em balança:
+     malha de topologia esférica não vira objeto com partes separadas sem rasgar.
+     A transição é uma dissolução cruzada — o orb encolhe e some enquanto o
+     sólido cresce. Quando o sólido assenta, o ruído congela e a peça só gira
+     com o mouse. Paleta idêntica nos dois: violeta → magenta → laranja. */
   (function three(){
     var tile = document.getElementById("showtile");
     var canvas = document.getElementById("glcanvas");
     if(!tile || !canvas || typeof THREE === "undefined") return;
 
-    /* ---------- helpers de SDF ---------- */
-    function len3(x,y,z){ return Math.sqrt(x*x+y*y+z*z); }
-    function smin(a,b,k){ var h=Math.max(0,Math.min(1,0.5+0.5*(b-a)/k)); return b*(1-h)+a*h-k*h*(1-h); }
-    function sdSphere(x,y,z,r){ return len3(x,y,z)-r; }
-    function sdEllipsoid(x,y,z,rx,ry,rz){
-      var k0=len3(x/rx,y/ry,z/rz), k1=len3(x/(rx*rx),y/(ry*ry),z/(rz*rz));
-      return k1<1e-8 ? -Math.min(rx,ry,rz) : k0*(k0-1.0)/k1;
-    }
-    function sdRoundBox(x,y,z,bx,by,bz,r){
-      var qx=Math.abs(x)-bx, qy=Math.abs(y)-by, qz=Math.abs(z)-bz;
-      return len3(Math.max(qx,0),Math.max(qy,0),Math.max(qz,0))
-           + Math.min(Math.max(qx,Math.max(qy,qz)),0) - r;
-    }
-    function sdCapsule(px,py,pz,ax,ay,az,bx,by,bz,r){
-      var pax=px-ax,pay=py-ay,paz=pz-az, bax=bx-ax,bay=by-ay,baz=bz-az;
-      var dd=bax*bax+bay*bay+baz*baz;
-      var h=dd<1e-8?0:Math.max(0,Math.min(1,(pax*bax+pay*bay+paz*baz)/dd));
-      return len3(pax-bax*h,pay-bay*h,paz-baz*h)-r;
-    }
-    /* tronco cônico aproximado por esferas — usado em raízes e na ponta do coração */
-    function sdTaper(px,py,pz,ax,ay,az,bx,by,bz,r1,r2,n){
-      var d=1e9;
-      for(var i=0;i<=n;i++){
-        var t=i/n;
-        var sx=ax+(bx-ax)*t, sy=ay+(by-ay)*t, sz=az+(bz-az)*t;
-        d=Math.min(d, sdSphere(px-sx,py-sy,pz-sz, r1+(r2-r1)*t));
-      }
-      return d;
-    }
-
-    /* ---------- as formas ---------- */
-    var SDF = {
-      orb: function(x,y,z){ return len3(x,y,z)-1.0; },
-
-      brain: function(x,y,z){
-        var d = sdEllipsoid(x, y-0.04, z, 0.95, 0.80, 1.00);
-        d = Math.max(d, -sdRoundBox(x, y-0.62, z, 0.05, 0.62, 0.80, 0.02));   // fissura sagital
-        d = smin(d, sdEllipsoid(x, y+0.52, z+0.46, 0.44, 0.25, 0.30), 0.14);  // cerebelo
-        d = smin(d, sdTaper(x,y,z, 0,-0.48,0.12, 0,-1.00,0.22, 0.15,0.10, 5), 0.12); // tronco
-        d += 0.032*Math.sin(7.0*x)*Math.sin(7.0*y+1.0)*Math.sin(7.0*z);       // giros
-        d += 0.016*Math.sin(13.0*x+0.5)*Math.sin(13.0*z+1.7);
-        return d;
-      },
-
-      tooth: function(x,y,z){
-        var d = sdRoundBox(x, y-0.40, z, 0.36, 0.24, 0.32, 0.17);             // coroa
-        d = smin(d, sdSphere(x-0.23,y-0.70,z-0.19,0.15), 0.11);               // cúspides
-        d = smin(d, sdSphere(x+0.23,y-0.70,z-0.19,0.15), 0.11);
-        d = smin(d, sdSphere(x-0.23,y-0.70,z+0.19,0.15), 0.11);
-        d = smin(d, sdSphere(x+0.23,y-0.70,z+0.19,0.15), 0.11);
-        d = smin(d, sdTaper(x,y,z, -0.20,0.10,0, -0.30,-0.98,0, 0.15,0.045,7), 0.13); // raízes
-        d = smin(d, sdTaper(x,y,z,  0.20,0.10,0,  0.30,-0.98,0, 0.15,0.045,7), 0.13);
-        return d;
-      },
-
-      heart: function(x,y,z){
-        var zz = z*1.45;                                                       // achatado
-        var d = sdSphere(x-0.29, y-0.30, zz, 0.43);
-        d = smin(d, sdSphere(x+0.29, y-0.30, zz, 0.43), 0.20);
-        d = smin(d, sdTaper(x,y,zz, 0,0.10,0, 0,-1.00,0, 0.56,0.03, 9), 0.26); // ponta
-        return d;
-      },
-
-      scale: function(x,y,z){
-        var d = sdCapsule(x,y,z, 0,-0.70,0, 0,0.68,0, 0.065);                 // poste
-        d = Math.min(d, sdRoundBox(x, y+0.80, z, 0.32,0.05,0.32, 0.04));      // base
-        d = Math.min(d, sdCapsule(x,y,z, -0.74,0.58,0, 0.74,0.58,0, 0.052));  // travessa
-        d = Math.min(d, sdSphere(x, y-0.76, z, 0.09));                        // pomo
-        for(var s=-1;s<=1;s+=2){
-          var px=0.74*s;
-          d = Math.min(d, sdCapsule(x,y,z, px,0.56,0, px,0.22,0, 0.022));     // hastes
-          d = Math.min(d, sdEllipsoid(x-px, y-0.16, z, 0.27,0.055,0.27));     // pratos
-        }
-        return d;
-      },
-
-      screen: function(x,y,z){
-        var d = sdRoundBox(x, y-0.18, z, 0.84, 0.52, 0.05, 0.06);             // painel
-        d = Math.min(d, sdRoundBox(x, y+0.52, z, 0.09, 0.22, 0.06, 0.03));    // pescoço
-        d = Math.min(d, sdRoundBox(x, y+0.76, z, 0.38, 0.045, 0.19, 0.03));   // base
-        return d;
-      }
-    };
-
-    /* ---------- geometria base ---------- */
-    var DETAIL = 16;
-    var geo = new THREE.IcosahedronGeometry(1, DETAIL);
-    var basePos = geo.attributes.position.array;
-    var baseNrm = geo.attributes.normal.array;
-    var VCOUNT  = geo.attributes.position.count;
-
-    /* projeta cada vértice da esfera na superfície do SDF (descida de gradiente) */
-    function buildShape(sdf, from, to, out){
-      var e = 0.0016;
-      for(var i=from;i<to;i++){
-        var o=i*3, px=baseNrm[o]*1.65, py=baseNrm[o+1]*1.65, pz=baseNrm[o+2]*1.65;
-        var gx=baseNrm[o], gy=baseNrm[o+1], gz=baseNrm[o+2];
-        for(var k=0;k<16;k++){
-          var d = sdf(px,py,pz);
-          gx = sdf(px+e,py,pz)-d; gy = sdf(px,py+e,pz)-d; gz = sdf(px,py,pz+e)-d;
-          var gl = len3(gx,gy,gz) || 1e-6; gx/=gl; gy/=gl; gz/=gl;
-          if(Math.abs(d) < 0.0009) break;
-          px -= gx*d*0.92; py -= gy*d*0.92; pz -= gz*d*0.92;
-        }
-        out.pos[o]=px; out.pos[o+1]=py; out.pos[o+2]=pz;
-        out.nrm[o]=gx; out.nrm[o+1]=gy; out.nrm[o+2]=gz;
-      }
-    }
-
-    /* normaliza a escala para todas as formas ocuparem o mesmo espaço visual */
-    function fitShape(s){
-      var m=0, i;
-      for(i=0;i<s.pos.length;i+=3){ var r=len3(s.pos[i],s.pos[i+1],s.pos[i+2]); if(r>m) m=r; }
-      if(m<1e-6) return;
-      var k=1.16/m;
-      for(i=0;i<s.pos.length;i++) s.pos[i]*=k;
-    }
-
-    var cache = {};
-    function shapeSync(name){                       // usado só para o orb (barato)
-      if(cache[name]) return cache[name];
-      var s={pos:new Float32Array(VCOUNT*3), nrm:new Float32Array(VCOUNT*3), done:true};
-      buildShape(SDF[name]||SDF.orb, 0, VCOUNT, s); fitShape(s); cache[name]=s; return s;
-    }
-
-    /* construção fatiada: nunca trava a thread principal */
-    var queue=[], building=null, buildAt=0, CHUNK=1400;
-    function requestShape(name){
-      if(cache[name] || name==="orb") return;
-      if(queue.indexOf(name)<0) queue.push(name);
-    }
-    function pumpBuild(){
-      if(!building){
-        if(!queue.length) return;
-        var n=queue.shift();
-        if(cache[n]) return;
-        building={name:n, s:{pos:new Float32Array(VCOUNT*3), nrm:new Float32Array(VCOUNT*3), done:false}};
-        buildAt=0;
-      }
-      var end=Math.min(buildAt+CHUNK, VCOUNT);
-      buildShape(SDF[building.name]||SDF.orb, buildAt, end, building.s);
-      buildAt=end;
-      if(buildAt>=VCOUNT){ fitShape(building.s); building.s.done=true; cache[building.name]=building.s; building=null; }
-    }
-
-    /* ---------- ciclo de formas da página ---------- */
-    var cycle = (tile.getAttribute("data-shapes")||"orb").split(",")
-                  .map(function(s){return s.trim();})
-                  .filter(function(s){return !!SDF[s];});
-    if(!cycle.length) cycle=["orb"];
-    var orb = shapeSync("orb");
-    for(var q=0;q<cycle.length;q++) requestShape(cycle[q]);
-
-    /* ---------- render ---------- */
     var renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true, alpha:true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    var scene = new THREE.Scene();
+    var scene  = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
     camera.position.z = 3.4;
 
-    var aPosA=new THREE.BufferAttribute(new Float32Array(orb.pos),3);
-    var aNrmA=new THREE.BufferAttribute(new Float32Array(orb.nrm),3);
-    var aPosB=new THREE.BufferAttribute(new Float32Array(orb.pos),3);
-    var aNrmB=new THREE.BufferAttribute(new Float32Array(orb.nrm),3);
-    aPosA.setUsage(THREE.DynamicDrawUsage); aNrmA.setUsage(THREE.DynamicDrawUsage);
-    aPosB.setUsage(THREE.DynamicDrawUsage); aNrmB.setUsage(THREE.DynamicDrawUsage);
-    geo.setAttribute("aPosA",aPosA); geo.setAttribute("aNrmA",aNrmA);
-    geo.setAttribute("aPosB",aPosB); geo.setAttribute("aNrmB",aNrmB);
+    var root = new THREE.Group(); scene.add(root);
 
-    var uniforms = { uTime:{value:0}, uMouse:{value:new THREE.Vector2(0,0)}, uMix:{value:0},
-      cA:{value:new THREE.Color(0x6a4cf5)}, cB:{value:new THREE.Color(0xd44df0)}, cC:{value:new THREE.Color(0xff7a3d)} };
-    var mat = new THREE.ShaderMaterial({ uniforms:uniforms,
+    var C = { a:new THREE.Color(0x6a4cf5), b:new THREE.Color(0xd44df0), c:new THREE.Color(0xff7a3d) };
+
+    /* ---------- ruído simplex compartilhado ---------- */
+    var SNOISE = [
+      "vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}",
+      "vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}",
+      "float snoise(vec3 v){",
+      "  const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);",
+      "  vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);",
+      "  vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);",
+      "  vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy; i=mod(i,289.0);",
+      "  vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));",
+      "  float n_=1.0/7.0; vec3 ns=n_*D.wyz-D.xzx;",
+      "  vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);",
+      "  vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);",
+      "  vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);",
+      "  vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));",
+      "  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;",
+      "  vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);",
+      "  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));",
+      "  p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;",
+      "  vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;",
+      "  return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));",
+      "}"
+    ].join("\n");
+
+    /* ---------- ORB (inalterado, + opacidade/escala para a transição) ---------- */
+    var orbU = { uTime:{value:0}, uMouse:{value:new THREE.Vector2(0,0)}, uOpacity:{value:1},
+                 cA:{value:C.a}, cB:{value:C.b}, cC:{value:C.c} };
+    var orbMat = new THREE.ShaderMaterial({ uniforms:orbU, transparent:true,
       vertexShader:[
-        "uniform float uTime; uniform vec2 uMouse; uniform float uMix;",
-        "attribute vec3 aPosA; attribute vec3 aNrmA; attribute vec3 aPosB; attribute vec3 aNrmB;",
-        "varying vec3 vNormal; varying float vD;",
-        "vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}",
-        "vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}",
-        "float snoise(vec3 v){",
-        "  const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);",
-        "  vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);",
-        "  vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);",
-        "  vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy; i=mod(i,289.0);",
-        "  vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));",
-        "  float n_=1.0/7.0; vec3 ns=n_*D.wyz-D.xzx;",
-        "  vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);",
-        "  vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);",
-        "  vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);",
-        "  vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));",
-        "  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;",
-        "  vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);",
-        "  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));",
-        "  p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;",
-        "  vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;",
-        "  return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));",
-        "}",
-        "void main(){ float t=uTime*0.35;",
-        /* ruído amostrado na normal da ESFERA -> cor/textura idênticas em toda forma */
+        "uniform float uTime; uniform vec2 uMouse; varying vec3 vNormal; varying float vD;",
+        SNOISE,
+        "void main(){ vNormal=normal; float t=uTime*0.35;",
         "  float n=snoise(normal*1.6+vec3(t,t*0.8,uMouse.x*1.5)); n+=0.5*snoise(normal*3.2+vec3(-t*1.3,t,uMouse.y*1.5));",
-        "  vD=n;",
-        "  vec3 mn=normalize(mix(aNrmA,aNrmB,uMix)); vNormal=mn;",
-        "  vec3 base=mix(aPosA,aPosB,uMix);",
-        "  vec3 pos=base+mn*n*0.28;",
-        "  gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0); }"
+        "  vD=n; vec3 pos=position+normal*n*0.28; gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0); }"
       ].join("\n"),
       fragmentShader:[
-        "uniform vec3 cA; uniform vec3 cB; uniform vec3 cC; varying vec3 vNormal; varying float vD;",
+        "uniform vec3 cA; uniform vec3 cB; uniform vec3 cC; uniform float uOpacity;",
+        "varying vec3 vNormal; varying float vD;",
         "void main(){ float g=smoothstep(-0.6,0.9,vD); vec3 col=mix(cA,cB,smoothstep(0.0,0.6,g));",
         "  col=mix(col,cC,smoothstep(0.55,1.0,g)); float fres=pow(1.0-abs(vNormal.z),2.0); col+=fres*0.35;",
-        "  gl_FragColor=vec4(col,1.0); }"
+        "  gl_FragColor=vec4(col,uOpacity); }"
       ].join("\n")
     });
-    var mesh = new THREE.Mesh(geo, mat); scene.add(mesh);
+    var orb = new THREE.Mesh(new THREE.IcosahedronGeometry(1,20), orbMat);
+    root.add(orb);
 
+    /* ---------- material dos SÓLIDOS: mesma paleta, com volume ---------- */
+    function solidMaterial(){
+      return new THREE.ShaderMaterial({
+        transparent:true, depthWrite:true, side:THREE.DoubleSide,
+        uniforms:{ uOpacity:{value:0}, uLo:{value:-1}, uHi:{value:1},
+                   cA:{value:C.a}, cB:{value:C.b}, cC:{value:C.c} },
+        vertexShader:[
+          "varying vec3 vN; varying vec3 vW;",
+          "void main(){ vN=normalize(normalMatrix*normal); vW=position;",
+          "  gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }"
+        ].join("\n"),
+        fragmentShader:[
+          "uniform vec3 cA; uniform vec3 cB; uniform vec3 cC;",
+          "uniform float uOpacity; uniform float uLo; uniform float uHi;",
+          "varying vec3 vN; varying vec3 vW;",
+          "void main(){",
+          /* eixo do gradiente calibrado nos limites reais da peça:
+             a paleta inteira (violeta -> magenta -> laranja) percorre a forma */
+          "  float t=(vW.y*0.86 + vW.x*0.38 - uLo)/max(uHi-uLo,0.001);",
+          "  float g=clamp(t,0.0,1.0);",
+          "  vec3 col=mix(cA,cB,smoothstep(0.0,0.62,g)); col=mix(col,cC,smoothstep(0.58,1.0,g));",
+          /* volume: difusa suave + rim, para ler como sólido e não como adesivo */
+          "  vec3 n=gl_FrontFacing?vN:-vN;",
+          "  float lam=0.74+0.30*max(dot(n,normalize(vec3(0.35,0.72,0.60))),0.0);",
+          "  float fres=pow(1.0-abs(n.z),2.0);",
+          "  col=col*lam+fres*0.34;",
+          "  col=mix(col, col*1.14, 0.6);",   /* um pouco mais vivo, sem sair da paleta */
+          "  gl_FragColor=vec4(col,uOpacity); }"
+        ].join("\n")
+      });
+    }
+
+    /* ---------- construtores de sólidos (primitivas de verdade) ----------
+       As transformações são assadas na própria geometria: assim `position`
+       no shader já é o espaço da peça inteira e o gradiente atravessa a
+       forma toda, em vez de reiniciar em cada primitiva. */
+    var _m4=new THREE.Matrix4(), _q=new THREE.Quaternion(), _e=new THREE.Euler();
+    function add(group, geo, mat, px,py,pz, rx,ry,rz, sx,sy,sz){
+      var g=geo.clone();
+      _e.set(rx||0,ry||0,rz||0); _q.setFromEuler(_e);
+      _m4.compose(new THREE.Vector3(px||0,py||0,pz||0), _q,
+                  new THREE.Vector3(sx===undefined?1:sx, sy===undefined?1:sy, sz===undefined?1:sz));
+      g.applyMatrix4(_m4);
+      var m=new THREE.Mesh(g, mat); group.add(m); return m;
+    }
+    var SEG = 40;
+
+    var BUILD = {
+      /* cérebro: dois lobos com fissura, cerebelo e tronco */
+      brain: function(mat){
+        var g=new THREE.Group(), lobe=new THREE.SphereGeometry(0.62, SEG, SEG);
+        for(var s=-1;s<=1;s+=2){
+          add(g, lobe, mat, s*0.30, 0.16, 0, 0,0,0, 1.0,0.95,1.15);
+          /* saliências dos giros, para não ficar uma bola lisa */
+          for(var i=0;i<7;i++){
+            var a=i/7*Math.PI*2;
+            add(g, new THREE.SphereGeometry(0.20,18,18), mat,
+                s*0.30+Math.cos(a)*0.40, 0.16+Math.sin(a)*0.34, Math.sin(a*1.7)*0.52);
+          }
+        }
+        add(g, new THREE.SphereGeometry(0.30,SEG,SEG), mat, 0,-0.44,-0.34, 0,0,0, 1.25,0.72,0.9); // cerebelo
+        add(g, new THREE.CylinderGeometry(0.13,0.10,0.42,24), mat, 0,-0.74,-0.16, 0.35,0,0);      // tronco
+        return g;
+      },
+
+      /* dente molar: coroa larga com sulco + duas raízes cônicas */
+      tooth: function(mat){
+        var g=new THREE.Group();
+        add(g, new THREE.SphereGeometry(0.56,SEG,SEG), mat, 0,0.30,0, 0,0,0, 1.06,0.90,0.92);   // coroa
+        for(var s=-1;s<=1;s+=2){
+          add(g, new THREE.SphereGeometry(0.30,SEG,SEG), mat, s*0.27,0.56,0, 0,0,0, 1,0.8,1);   // cúspides
+          add(g, new THREE.CylinderGeometry(0.24,0.055,0.95,28), mat, s*0.26,-0.44,0, 0,0,-s*0.16); // raízes
+        }
+        return g;
+      },
+
+      /* coração anatômico: massa ventricular, átrios e vasos */
+      heart: function(mat){
+        var g=new THREE.Group();
+        add(g, new THREE.SphereGeometry(0.60,SEG,SEG), mat, -0.04,0.02,0, 0,0,0.12, 1.02,1.16,0.92); // ventrículos
+        add(g, new THREE.CylinderGeometry(0.46,0.02,0.78,30), mat, 0.06,-0.70,0, 0,0,0.20);          // ápice
+        add(g, new THREE.SphereGeometry(0.30,SEG,SEG), mat, -0.34,0.52,0.02, 0,0,0, 1,0.86,1);       // átrio esq.
+        add(g, new THREE.SphereGeometry(0.26,SEG,SEG), mat,  0.36,0.46,-0.04, 0,0,0, 1,0.86,1);      // átrio dir.
+        /* vasos: arcos de toro + tubos retos */
+        add(g, new THREE.TorusGeometry(0.26,0.085,14,26,Math.PI*0.9), mat, 0.02,0.66,0, 0,0,-0.35);
+        add(g, new THREE.CylinderGeometry(0.085,0.085,0.42,20), mat, -0.26,0.92,0, 0,0,0.18);
+        add(g, new THREE.CylinderGeometry(0.07,0.07,0.34,20), mat,  0.30,0.86,-0.06, 0,0,-0.22);
+        add(g, new THREE.CylinderGeometry(0.06,0.06,0.30,18), mat,  0.05,0.95,0.10, 0.3,0,0.05);
+        return g;
+      },
+
+      /* balança da justiça: base, coluna, travessa, dois pratos suspensos */
+      scale: function(mat){
+        var g=new THREE.Group();
+        add(g, new THREE.CylinderGeometry(0.46,0.52,0.10,36), mat, 0,-0.92,0);                 // base
+        add(g, new THREE.CylinderGeometry(0.34,0.40,0.07,36), mat, 0,-0.84,0);
+        add(g, new THREE.CylinderGeometry(0.075,0.16,1.42,28), mat, 0,-0.10,0);                // coluna
+        add(g, new THREE.CylinderGeometry(0.19,0.19,0.10,30), mat, 0,0.62,0, Math.PI/2,0,0);   // eixo
+        add(g, new THREE.SphereGeometry(0.115,26,26), mat, 0,0.86,0);                          // pomo
+        add(g, new THREE.CylinderGeometry(0.05,0.05,0.16,20), mat, 0,0.73,0);
+        add(g, new THREE.CylinderGeometry(0.052,0.052,1.86,24), mat, 0,0.62,0, 0,0,Math.PI/2); // travessa
+        var pan=new THREE.SphereGeometry(0.30,34,20,0,Math.PI*2,Math.PI*0.5,Math.PI*0.5);      // tigela
+        for(var s=-1;s<=1;s+=2){
+          add(g, pan, mat, s*0.90,-0.16,0, 0,0,0, 1,0.55,1);
+          add(g, new THREE.SphereGeometry(0.055,16,16), mat, s*0.90,0.60,0);
+          for(var k=-1;k<=1;k+=2)                                                              // cordas
+            add(g, new THREE.CylinderGeometry(0.014,0.014,0.80,10), mat,
+                s*0.90+k*0.11,0.22,k*0.09, k*0.13,0,-k*0.14);
+        }
+        return g;
+      },
+
+      /* monitor desktop: painel, moldura, pescoço e pé */
+      screen: function(mat){
+        var g=new THREE.Group();
+        add(g, new THREE.BoxGeometry(1.70,1.08,0.11), mat, 0,0.34,0);        // painel
+        add(g, new THREE.BoxGeometry(1.54,0.92,0.13), mat, 0,0.36,0.03);     // tela
+        add(g, new THREE.BoxGeometry(0.20,0.30,0.10), mat, 0,-0.32,0);       // pescoço
+        add(g, new THREE.BoxGeometry(0.86,0.09,0.34), mat, 0,-0.52,0);       // pé
+        add(g, new THREE.CylinderGeometry(0.055,0.055,0.30,18), mat, 0,-0.32,0);
+        return g;
+      }
+    };
+
+    /* normaliza cada sólido para caber no mesmo espaço visual do orb */
+    var solids = {};
+    function getSolid(name){
+      if(solids[name]) return solids[name];
+      if(!BUILD[name]) return null;
+      var mat=solidMaterial(), g=BUILD[name](mat);
+      var box=new THREE.Box3().setFromObject(g), size=new THREE.Vector3(), ctr=new THREE.Vector3();
+      box.getSize(size); box.getCenter(ctr);
+      g.position.set(-ctr.x,-ctr.y,-ctr.z);
+      var wrap=new THREE.Group(); wrap.add(g);
+      /* normaliza pela extensão em TELA (x,y): usar a profundidade faria peças
+         fundas, como o cérebro, aparecerem menores que as chatas */
+      var k=2.42/Math.max(size.x,size.y);
+      wrap.scale.setScalar(k);
+      /* calibra o eixo do gradiente nos extremos reais da peça já centrada */
+      var lo=1e9, hi=-1e9;
+      g.traverse(function(m){
+        if(!m.isMesh) return;
+        var p=m.geometry.attributes.position, o=g.position;
+        for(var i=0;i<p.count;i++){
+          var v=(p.getY(i)+o.y)*0.86 + (p.getX(i)+o.x)*0.38;
+          if(v<lo) lo=v; if(v>hi) hi=v;
+        }
+      });
+      mat.uniforms.uLo.value=lo; mat.uniforms.uHi.value=hi;
+      wrap.visible=false; root.add(wrap);
+      solids[name]={group:wrap, mat:mat};
+      return solids[name];
+    }
+
+    /* ---------- partículas ---------- */
     var pc=120, pg=new THREE.BufferGeometry(), pp=new Float32Array(pc*3);
     for(var i=0;i<pc;i++){ var r=1.7+Math.random()*0.9, a=Math.random()*6.28, b=Math.acos(2*Math.random()-1);
       pp[i*3]=r*Math.sin(b)*Math.cos(a); pp[i*3+1]=r*Math.sin(b)*Math.sin(a); pp[i*3+2]=r*Math.cos(b); }
     pg.setAttribute("position", new THREE.BufferAttribute(pp,3));
-    var pts = new THREE.Points(pg, new THREE.PointsMaterial({color:0xffffff,size:0.02,transparent:true,opacity:0.5})); scene.add(pts);
+    var pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xffffff,size:0.02,transparent:true,opacity:0.5}));
+    scene.add(pts);
 
     function resize(){ var s=tile.clientWidth; renderer.setSize(s,s,false); camera.aspect=1; camera.updateProjectionMatrix(); }
     if(window.ResizeObserver) new ResizeObserver(resize).observe(tile);
@@ -249,50 +249,80 @@
     tile.addEventListener("pointermove",function(e){ var rc=tile.getBoundingClientRect(); mouse.tx=((e.clientX-rc.left)/rc.width-0.5)*2; mouse.ty=((e.clientY-rc.top)/rc.height-0.5)*2; });
     tile.addEventListener("pointerleave",function(){ mouse.tx=0; mouse.ty=0; });
 
-    /* ---------- máquina de estados do ciclo ---------- */
-    var idx=0, phase="hold", phaseT=0, HOLD=2.9, MORPH=1.7, pending=null;
-    function copyInto(attr, src){ attr.array.set(src); attr.needsUpdate=true; }
-    function easeInOut(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+    /* ---------- ciclo: orb -> sólido -> orb -> próximo sólido ---------- */
+    var forms=(tile.getAttribute("data-shapes")||"").split(",")
+      .map(function(s){return s.trim();}).filter(function(s){return !!BUILD[s];});
+    var fi=0, showing="orb", phase="hold", pt=0, HOLD_ORB=3.0, HOLD_SOLID=4.2, FADE=1.15;
+    var cur=null;                       // sólido ativo
+    var spin=0, noiseT=0;
 
-    /* hook de QA, opt-in por ?orbdebug — sem custo em produção */
-    if(/[?&]orbdebug/.test(location.search)){
-      window.__orb={ cycle:cycle, cache:cache, geo:geo, uniforms:uniforms,
-        state:function(){ return {idx:idx, name:cycle[idx], phase:phase, mix:uniforms.uMix.value,
-          built:Object.keys(cache), queued:queue.slice()}; } };
-    }
+    function easeOutBack(t){ var c1=1.70158,c3=c1+1; return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2); }
+    function easeInOut(t){ return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
 
     var clock=new THREE.Clock();
     function loop(){
-      var dt=clock.getDelta(), t=clock.getElapsedTime();
+      var dt=Math.min(clock.getDelta(),0.05);
       mouse.x+=(mouse.tx-mouse.x)*0.05; mouse.y+=(mouse.ty-mouse.y)*0.05;
-      uniforms.uTime.value=t; uniforms.uMouse.value.set(mouse.x,mouse.y);
-      mesh.rotation.y=t*0.15+mouse.x*0.4; mesh.rotation.x=mouse.y*0.3; pts.rotation.y=-t*0.05;
 
-      if(cycle.length>1){
-        pumpBuild();
-        phaseT+=dt;
-        if(phase==="hold" && phaseT>=HOLD){
-          var nx=(idx+1)%cycle.length, nm=cycle[nx];
-          var target=(nm==="orb")?orb:cache[nm];
-          if(target && target.done){                    // só troca quando a forma está pronta
-            copyInto(aPosB,target.pos); copyInto(aNrmB,target.nrm);
-            pending=nx; phase="morph"; phaseT=0;
-          } else { requestShape(nm); phaseT=HOLD-0.25; } // tenta de novo em breve
-        } else if(phase==="morph"){
-          var k=Math.min(1, phaseT/MORPH);
-          uniforms.uMix.value=easeInOut(k);
+      if(forms.length){
+        pt+=dt;
+        if(phase==="hold"){
+          var lim = showing==="orb" ? HOLD_ORB : HOLD_SOLID;
+          if(pt>=lim){
+            if(showing==="orb"){ cur=getSolid(forms[fi]); if(cur) cur.group.visible=true; }
+            phase="fade"; pt=0;
+          }
+        } else {
+          var k=Math.min(1,pt/FADE), e=easeInOut(k);
+          var toSolid = showing==="orb";
+          var so = toSolid?e:1-e;                       // quanto do sólido está presente
+          orbU.uOpacity.value = 1-so;
+          orb.scale.setScalar(1-0.35*so);
+          orb.visible = so<0.995;
+          if(cur){
+            cur.mat.uniforms.uOpacity.value = so;
+            var g = toSolid ? easeOutBack(Math.max(k,0.001)) : e;   // sólido entra com leve overshoot
+            cur.group.scale.setScalar(toSolid ? 0.72+0.28*g : 1-0.28*(1-so)/1);
+          }
           if(k>=1){
-            idx=pending; var cur=(cycle[idx]==="orb")?orb:cache[cycle[idx]];
-            copyInto(aPosA,cur.pos); copyInto(aNrmA,cur.nrm);
-            uniforms.uMix.value=0; phase="hold"; phaseT=0;
+            if(toSolid){ showing="solid"; }
+            else { showing="orb"; if(cur){cur.group.visible=false;} cur=null; fi=(fi+1)%forms.length; }
+            phase="hold"; pt=0;
           }
         }
       }
+
+      /* ruído e giro automático só existem enquanto o orb está presente:
+         com o sólido montado, a peça fica parada e só responde ao mouse */
+      var orbness = orbU.uOpacity.value;
+      /* orb transparente ainda escreveria profundidade e esconderia o sólido
+         atrás dele — some com ele de vez e só escreve z quando está opaco */
+      orb.visible = orbness > 0.02;
+      orbMat.depthWrite = orbness > 0.95;
+      noiseT += dt*orbness;
+      spin   += dt*0.15*orbness;
+      orbU.uTime.value = noiseT;
+      orbU.uMouse.value.set(mouse.x, mouse.y);
+
+      root.rotation.y = spin + mouse.x*0.55;
+      root.rotation.x = mouse.y*0.32;
+      pts.rotation.y  = -clock.getElapsedTime()*0.05;
+
       renderer.render(scene,camera);
       if(!reduce) requestAnimationFrame(loop);
     }
+
+    if(/[?&]orbdebug/.test(location.search)){
+      window.__orb={ forms:forms, solids:solids, getSolid:getSolid,
+        scene:scene, camera:camera, orb:orb, root:root, pts:pts,
+        state:function(){ return {showing:showing, phase:phase, form:forms[fi],
+          orbOpacity:+orbU.uOpacity.value.toFixed(2),
+          solidOpacity:cur?+cur.mat.uniforms.uOpacity.value.toFixed(2):null}; } };
+    }
+
     loop(); if(reduce) renderer.render(scene,camera);
   })();
+
 
 
   /* -------- animated SVG "tech" dashboards / arts (guarded by id) -------- */
