@@ -18,6 +18,7 @@ Abre direto no navegador (`index.html`) — funciona offline, sem servidor.
 | `legal.html` | Setor jurídico |
 | `agent-automation.html` | Agente de automação |
 | `agent-second-brain.html` | Second Brain |
+| `clinic-agents-lp/index.html` | Landing page de agentes de WhatsApp para clínicas (`/clinic-agents-lp/`) |
 | `diagnostic.html` | Teste de animações (não faz parte do site) |
 
 ## Rodar localmente

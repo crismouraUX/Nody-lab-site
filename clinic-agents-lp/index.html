@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentes de IA no WhatsApp para clínicas | Nody Lab</title>
+<meta name="description" content="CRM de WhatsApp com agentes de IA que respondem seus pacientes, qualificam e marcam direto na agenda da clínica.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://nodylab.com/clinic-agents-lp/">
+<meta property="og:title" content="Agentes de IA no WhatsApp para clínicas | Nody Lab">
+<meta property="og:description" content="Os agentes respondem seus pacientes em segundos, qualificam e marcam direto na agenda.">
+<meta property="og:url" content="https://nodylab.com/clinic-agents-lp/">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300..800&display=swap" rel="stylesheet">
+<style>
+html { scroll-behavior: smooth; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body { margin: 0; }
+.lp {
+  --background: #ffffff; --foreground: #141414; --card: #ffffff; --sidebar: #f6f6f4; --field: #f2f2f0;
+  --primary: #141414; --primary-foreground: #ffffff; --secondary: #f0f0ee; --muted: #f3f3f1; --muted-foreground: #666663;
+  --accent: #f1ffc7; --accent-foreground: #2b3600; --success: #2f7d3a; --success-soft: #e5f4e6; --success-foreground: #1d5326;
+  --warning: #a35f00; --warning-soft: #fdf0d9; --warning-foreground: #6e4000;
+  --inverse: #141414; --inverse-foreground: #f7f7f5; --inverse-muted: #a8a8a4; --inverse-accent: #c6ff00; --inverse-line: #34352f;
+  --border: #e8e8e5; --input: #d9d9d5; --ring: #141414; --brand: #c6ff00; --brand-shadow: #647a00; --on-brand: #141414;
+  --bubble-lead: #f1f1ef; --bubble-lead-fg: #141414; --step: #f3f3f1; --step-fg: #1f4a00; --destructive: #c62f22; --destructive-soft: #fdebe9;
+  background: var(--background); color: var(--foreground);
+  font-family: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px; line-height: 21px; font-weight: 450; -webkit-font-smoothing: antialiased;
+}
+.lp.dark {
+  --background: #0d0e0c; --foreground: #f2f2ee; --card: #151613; --sidebar: #111210; --field: #1d1e1b;
+  --primary: #c6ff00; --primary-foreground: #0d0e0c; --secondary: #22231f; --muted: #1d1e1b; --muted-foreground: #a3a39c;
+  --accent: #253100; --accent-foreground: #dcff70; --success: #6fd37a; --success-soft: #132a17; --success-foreground: #a6eeae;
+  --warning: #f5b53d; --warning-soft: #2e2208; --warning-foreground: #ffd68a;
+  --inverse: #f2f2ee; --inverse-foreground: #141414; --inverse-muted: #5c5c58; --inverse-accent: #2b3600; --inverse-line: #d6d6d0;
+  --border: #262724; --input: #34352f; --ring: #c6ff00;
+  --bubble-lead: #232420; --bubble-lead-fg: #f2f2ee; --step: #1d1e1b; --step-fg: #b9f28a; --destructive: #ff6b61; --destructive-soft: #3a1210;
+}
+.lp *, .lp *::before, .lp *::after { box-sizing: border-box; }
+.lp a { color: inherit; text-decoration: none; }
+.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 32px); }
+.sec { padding: clamp(56px, 8vw, 104px) 0; }
+.h2 { margin: 0; font-size: clamp(30px, 3.6vw, 40px); line-height: 1.1; font-weight: 650; letter-spacing: -0.02em; text-wrap: balance; }
+.lead { margin: 0; font-size: 18px; line-height: 28px; font-weight: 350; color: var(--muted-foreground); text-wrap: pretty; max-width: 560px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 600; line-height: 20px; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1), background-color 120ms, box-shadow 120ms; }
+.btn:active { transform: scale(0.97); }
+.btn:focus-visible, .lp summary:focus-visible, .lp a:focus-visible, .lp input:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-primary:hover { opacity: 0.9; }
+.btn-lime { background: var(--brand); color: var(--on-brand); box-shadow: 3px 4px 0 var(--brand-shadow); }
+.btn-lime:hover { transform: translate(1px, 1px); box-shadow: 2px 3px 0 var(--brand-shadow); }
+.btn-outline { background: transparent; color: var(--foreground); border-color: var(--input); }
+.btn-outline:hover { background: var(--muted); }
+.btn-sm { height: 44px; padding: 0 16px; font-size: 14px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+.ph { position: relative; width: 100%; background: var(--muted); border-radius: 16px; overflow: hidden; display: flex; align-items: flex-end; }
+.ph::before { content: ""; position: absolute; inset: 0; background-image: repeating-linear-gradient(135deg, transparent 0, transparent 14px, var(--border) 14px, var(--border) 15px); }
+.ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ph-cap { position: relative; margin: 12px; padding: 8px 12px; background: var(--card); color: var(--foreground); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; line-height: 16px; font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 10px; background: var(--step); border-radius: 9999px; padding: 6px 14px 6px 6px; }
+.av { position: relative; width: 28px; height: 28px; border-radius: 9999px; background: var(--brand); color: var(--on-brand); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.av.live { animation: ring 1600ms cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.av .ok { position: absolute; right: -3px; bottom: -3px; width: 14px; height: 14px; border-radius: 9999px; background: var(--success); color: #ffffff; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--step); }
+.pill-n { font-size: 11px; line-height: 14px; font-weight: 650; letter-spacing: 0.01em; color: var(--muted-foreground); display: block; }
+.pill-a { font-size: 13px; line-height: 18px; font-weight: 600; display: block; }
+.bubble { max-width: 86%; padding: 10px 14px 6px; font-size: 14px; line-height: 21px; font-weight: 450; animation: pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.b-lead { align-self: flex-start; background: var(--bubble-lead); color: var(--bubble-lead-fg); border-radius: 20px 20px 20px 4px; transform-origin: left bottom; }
+.b-agent { align-self: flex-end; background: #c6ff00; color: #141414; border-radius: 20px 20px 4px 20px; transform-origin: right bottom; }
+.b-time { display: block; text-align: right; font-size: 11px; line-height: 14px; margin-top: 2px; }
+.step-in { animation: rise 360ms cubic-bezier(0.22, 1, 0.36, 1) both; align-self: flex-end; }
+.mini-l { background: var(--bubble-lead); color: var(--bubble-lead-fg); border-radius: 14px 14px 14px 4px; padding: 8px 12px; font-size: 13px; line-height: 19px; align-self: flex-start; max-width: 90%; }
+.mini-a { background: #c6ff00; color: #141414; border-radius: 14px 14px 4px 14px; padding: 8px 12px; font-size: 13px; line-height: 19px; align-self: flex-end; max-width: 90%; }
+.tile { border-radius: 16px; padding: clamp(22px, 3vw, 32px); display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.tile h3 { margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em; }
+.tile p { margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; }
+.faq { border-bottom: 1px solid var(--border); }
+.faq summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 16px 0; font-size: 18px; line-height: 24px; font-weight: 650; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq .chev { flex: none; transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+.faq[open] .chev { transform: rotate(180deg); }
+.faq p { margin: 0 0 20px; max-width: 720px; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground); }
+.field-l { display: block; font-size: 13px; line-height: 18px; font-weight: 600; margin-bottom: 6px; }
+.field-i { width: 100%; height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid transparent; background: var(--field); color: var(--foreground); font-family: inherit; font-size: 16px; font-weight: 450; }
+.field-i::placeholder { color: var(--muted-foreground); }
+.field-i[aria-invalid="true"] { border-color: var(--destructive); }
+.field-e { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--destructive-soft); color: var(--destructive); font-size: 13px; line-height: 19px; font-weight: 600; }
+.nav-a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 600; color: var(--muted-foreground); padding: 0 4px; transition: color 120ms; }
+.nav-a:hover { color: var(--foreground); }
+.dots { background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 24px 24px; }
+.lp [id] { scroll-margin-top: 84px; }
+.lp a.skip { position: absolute; left: 16px; top: -72px; z-index: 40; background: var(--primary); color: var(--primary-foreground); padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; }
+.lp a.skip:focus { top: 12px; }
+.tl-row { display: grid; grid-template-columns: minmax(104px, 160px) minmax(0, 1fr); gap: 8px 24px; padding: 28px 0; border-top: 1px solid var(--border); align-items: baseline; }
+.tl-time { font-size: clamp(34px, 4.4vw, 56px); line-height: 1; font-weight: 650; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.who { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.mtp { display: inline-flex; align-items: center; gap: 12px; background: var(--card); color: var(--foreground); border: 1px solid var(--foreground); border-radius: 12px; padding: 8px 16px 8px 8px; }
+.mtp-i { width: 36px; height: 36px; border-radius: 9999px; background: #c6ff00; color: #141414; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.mtp-t { display: block; font-size: 14px; line-height: 18px; font-weight: 650; }
+.mtp-s { display: block; font-size: 12px; line-height: 16px; font-weight: 450; color: var(--muted-foreground); }
+.orch-node { border: 1px solid var(--border); background: var(--card); color: var(--foreground); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; animation: lit 8s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.orch-node span.d { display: block; font-size: 13px; line-height: 19px; font-weight: 450; opacity: 0.8; }
+.mem1 { animation: mem1 8s ease infinite; }
+.mem2 { animation: mem2 8s ease infinite; }
+.mem3 { animation: mem3 8s ease infinite; }
+.mem4 { animation: mem4 8s ease infinite; }
+.mem-row { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 4px 12px; padding: 14px 0; border-top: 1px solid var(--inverse-line); }
+.int-row { display: grid; grid-template-columns: minmax(0, 230px) minmax(0, 1fr) auto; gap: 12px 24px; padding: 28px 0; border-top: 1px solid var(--border); align-items: center; }
+@keyframes lit {
+  0% { background: #c6ff00; color: #141414; border-color: #141414; box-shadow: 3px 4px 0 #647a00; }
+  22% { background: #c6ff00; color: #141414; border-color: #141414; box-shadow: 3px 4px 0 #647a00; }
+  30% { background: var(--card); color: var(--foreground); border-color: var(--border); box-shadow: 0 0 0 0 transparent; }
+  100% { background: var(--card); color: var(--foreground); border-color: var(--border); box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes mem1 {
+  0%, 6% { opacity: 0.25; }
+  12%, 94% { opacity: 1; }
+  100% { opacity: 0.25; }
+}
+@keyframes mem2 {
+  0%, 31% { opacity: 0.25; }
+  37%, 94% { opacity: 1; }
+  100% { opacity: 0.25; }
+}
+@keyframes mem3 {
+  0%, 56% { opacity: 0.25; }
+  62%, 94% { opacity: 1; }
+  100% { opacity: 0.25; }
+}
+@keyframes mem4 {
+  0%, 81% { opacity: 0.25; }
+  87%, 94% { opacity: 1; }
+  100% { opacity: 0.25; }
+}
+@media (max-width: 640px) {
+  .int-row { grid-template-columns: minmax(0, 1fr); }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.88) translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); filter: blur(3px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes ring {
+  0% { box-shadow: 0 0 0 0 rgba(198, 255, 0, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(198, 255, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(198, 255, 0, 0); }
+}
+@media (max-width: 820px) {
+  .nav-links { display: none !important; }
+  .nav-cta-ghost { display: none !important; }
+  .who-offset { margin-top: 0 !important; }
+}
+@media (max-width: 520px) {
+  .tl-row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp * { animation: none !important; transition: none !important; }
+}
+
+/* PARA QUEM: pinned scroll sequence (zoom into card, modals slide sideways, vertical exit) */
+.pq-track { position: relative; height: calc(100vh - 68px + 2400px); view-timeline-name: --pq; view-timeline-axis: block; }
+.pq-stage { --cwid: calc(min(100%, 1200px) - 2 * clamp(16px, 4vw, 32px)); --cl: calc((100% - min(100%, 1200px)) / 2 + clamp(16px, 4vw, 32px)); --cw: calc((var(--cwid) - 72px) / 4); position: sticky; top: 68px; height: calc(100vh - 68px); min-height: 560px; overflow: hidden; background: var(--background); }
+.pq-head { position: absolute; left: 0; right: 0; top: 40px; }
+.pq-cards { position: absolute; left: 0; right: 0; top: 200px; }
+.pq-cards-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.pq-card { height: 360px; border-radius: 16px; }
+.pq-strip { position: absolute; inset: 0; }
+.pq-panel { position: absolute; top: 2.5%; left: calc(2.5% + 100%); width: 95%; height: 95%; border-radius: 20px; background: var(--card); border: 1px solid var(--border); overflow: hidden; }
+.pq-panel-1 { left: 2.5%; }
+.pq-panel-2 { left: calc(2.5% + 100%); }
+.pq-panel-3 { left: calc(2.5% + 200%); }
+.pq-panel-4 { left: calc(2.5% + 300%); }
+.pq-img { position: absolute; left: 0; top: 0; bottom: 0; width: 56%; border-radius: 0; align-items: flex-end; justify-content: space-between; }
+.pq-chip { display: none; font-size: 16px; line-height: 20px; padding: 10px 16px; }
+.pq-text { position: absolute; right: 0; top: 0; bottom: 0; width: 44%; padding: clamp(24px, 4vw, 56px); display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+.pq-role { font-size: clamp(40px, 4.8vw, 72px); line-height: 1; font-weight: 650; letter-spacing: -0.035em; color: var(--foreground); text-wrap: balance; }
+.pq-role::after { content: ""; display: inline-block; width: 0.16em; height: 0.16em; margin-left: 0.08em; border-radius: 9999px; background: #c6ff00; box-shadow: 0.05em 0.07em 0 #647a00; }
+.pq-card .ph-cap { font-size: 16px; line-height: 20px; padding: 10px 16px; }
+.pq-h { margin: 0; font-size: clamp(20px, 2vw, 28px); line-height: 1.2; font-weight: 650; letter-spacing: -0.015em; text-wrap: balance; }
+.pq-sub { margin: 0; font-size: 18px; line-height: 28px; font-weight: 350; color: var(--muted-foreground); text-wrap: pretty; }
+@supports (animation-timeline: view()) {
+  @media (min-width: 861px) and (prefers-reduced-motion: no-preference) {
+    .lp .pq-head, .lp .pq-cards, .lp .pq-strip, .lp .pq-panel-1, .lp .pq-panel-1 .pq-img, .lp .pq-panel-1 .pq-text, .lp .pq-panel-1 .pq-chip, .lp .pq-panel-1 .pq-cap {
+      animation-timeline: --pq; animation-fill-mode: both; animation-timing-function: linear;
+      animation-range: cover calc(100vh - 68px) cover calc(100% - 100vh);
+    }
+    .lp .pq-head { animation-name: pq-head; }
+    .lp .pq-cards { animation-name: pq-cards; }
+    .lp .pq-strip { animation-name: pq-strip; }
+    .lp .pq-panel-1 { animation-name: pq-p1; }
+    .lp .pq-panel-1 .pq-img { animation-name: pq-p1img; }
+    .lp .pq-panel-1 .pq-text { animation-name: pq-p1text; }
+    .lp .pq-panel-1 .pq-chip { display: inline-flex; animation-name: pq-p1chip; }
+    .lp .pq-panel-1 .pq-cap { animation-name: pq-p1chip; }
+  }
+}
+@keyframes pq-head { 0%, 3% { opacity: 1; transform: none; } 12%, 100% { opacity: 0; transform: translateY(-16px); } }
+@keyframes pq-cards { 0%, 6% { opacity: 1; } 14%, 100% { opacity: 0; } }
+@keyframes pq-p1 {
+  0%, 4% { left: var(--cl); top: 200px; width: var(--cw); height: 360px; border-radius: 16px; }
+  22%, 100% { left: 2.5%; top: 2.5%; width: 95%; height: 95%; border-radius: 20px; }
+}
+@keyframes pq-p1img { 0%, 22% { width: 100%; } 32%, 100% { width: 56%; } }
+@keyframes pq-p1text { 0%, 24% { opacity: 0; transform: translateX(28px); } 33%, 100% { opacity: 1; transform: none; } }
+@keyframes pq-p1chip { 0%, 4% { opacity: 1; } 20%, 100% { opacity: 0; } }
+@keyframes pq-strip {
+  0%, 38% { transform: translateX(0); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  50%, 56% { transform: translateX(-100%); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  68%, 72% { transform: translateX(-200%); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  84%, 100% { transform: translateX(-300%); }
+}
+@media (max-width: 860px), (prefers-reduced-motion: reduce) {
+  .pq-track { height: auto; }
+  .pq-stage { position: static; height: auto; min-height: 0; overflow: visible; padding: clamp(56px, 8vw, 104px) 0; display: flex; flex-direction: column; gap: 40px; }
+  .pq-head, .pq-cards { position: static; }
+  .pq-cards { display: none; }
+  .pq-strip { position: static; display: flex; flex-direction: column; gap: 24px; padding: 0 clamp(16px, 4vw, 32px); }
+  .pq-panel, .pq-panel-1, .pq-panel-2, .pq-panel-3, .pq-panel-4 { position: relative; left: auto; top: auto; width: auto; height: auto; }
+  .pq-img { position: relative; width: 100%; aspect-ratio: 4 / 3; }
+  .pq-text { position: static; width: auto; padding: 24px; }
+}
+.lp a.btn-primary { color: var(--primary-foreground); }
+.lp a.btn-lime { color: var(--on-brand); }
+.lp a.btn-outline { color: var(--foreground); }
+</style>
+</head>
+<body>
+<div class="lp" style="min-height: 100%">
+<a class="skip" href="#topo">Pular para o conteúdo</a>
+
+<!-- NAV -->
+<header style="position: sticky; top: 0; z-index: 20; background: var(--background); border-bottom: 1px solid var(--border);">
+  <div class="wrap" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 68px;">
+    <a href="#topo" aria-label="Nody Lab" style="display: inline-flex; align-items: center; gap: 4px;">
+      <span style="font-size: 24px; line-height: 28px; font-weight: 750; letter-spacing: -0.04em;">nody lab</span>
+      <span aria-hidden="true" style="width: 9px; height: 9px; margin-top: 12px; border-radius: 9999px; background: #c6ff00; box-shadow: 2px 3px 0 #647a00; display: inline-block;"></span>
+    </a>
+    <nav class="nav-links" aria-label="Seções" style="display: flex; align-items: center; gap: 24px;">
+      <a class="nav-a" href="#para-quem">Para quem</a>
+      <a class="nav-a" href="#como-funciona">Como funciona</a>
+      <a class="nav-a" href="#agentes">Agentes</a>
+      <a class="nav-a" href="#integracoes">Integrações</a>
+      <a class="nav-a" href="#precos">Preços</a>
+      <a class="nav-a" href="#faq">Perguntas</a>
+    </nav>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <a class="btn btn-primary btn-sm" href="#contato">Ver na minha clínica</a>
+    </div>
+  </div>
+</header>
+
+<main id="topo">
+
+<!-- HERO: portrait + compact live chat -->
+<section class="dots" style="position: relative; padding: clamp(40px, 7vw, 88px) 0 clamp(56px, 8vw, 104px);">
+  <div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; gap: 56px 64px;">
+    <div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 28px;">
+      <h1 style="margin: 0; font-size: clamp(40px, 5.2vw, 64px); line-height: 1.02; font-weight: 650; letter-spacing: -0.03em; text-wrap: balance;">Transforme cada mensagem no WhatsApp em consulta agendada</h1>
+      <p style="margin: 0; max-width: 540px; font-size: 18px; line-height: 28px; font-weight: 350; color: var(--muted-foreground); text-wrap: pretty;">
+        O Nody Lab é o CRM de WhatsApp com agentes de IA para clínicas odontológicas. Eles respondem seus pacientes em segundos, entendem o que cada um precisa e marcam direto na agenda, de dia, de noite e no fim de semana. Sua recepção assume quando você quiser.
+      </p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+        <a class="btn btn-lime" href="#contato" style="height: 52px; padding: 0 26px; font-size: 16px;">
+          Ver na minha clínica
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <a class="btn btn-outline" href="#como-funciona" style="height: 52px; padding: 0 22px; font-size: 16px;">Ver como funciona</a>
+      </div>
+      <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 24px; color: var(--muted-foreground); font-size: 14px; font-weight: 600;">
+        <li style="display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Atende 24 horas</li>
+        <li style="display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Marca na agenda da clínica</li>
+        <li style="display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Recepção assume a qualquer momento</li>
+      </ul>
+      <span class="mtp" style="align-self: flex-start;">
+        <span class="mtp-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <span><span class="mtp-t">Meta Tech Partner</span><span class="mtp-s">Parceiro de tecnologia da Meta</span></span>
+      </span>
+    </div>
+
+    <div style="flex: 1 1 400px; min-width: 0; display: flex; justify-content: center;">
+      <div style="position: relative; width: 100%; max-width: 500px; padding: 0 14px 64px 36px;">
+        <div class="ph" style="aspect-ratio: 4 / 5; border: 1px solid var(--foreground); box-shadow: 12px 14px 0 #c6ff00;">
+          <img src="images/hero.jpg" alt="Profissional de saúde de jaleco ouvindo atentamente uma paciente em consulta" style="object-position: 72% 30%;">
+        </div>
+        <div style="position: absolute; left: 0; bottom: 0; width: min(340px, 82%); background: var(--card); border: 1px solid var(--foreground); border-radius: 16px; overflow: hidden;">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--sidebar);">
+            <span style="width: 28px; height: 28px; border-radius: 9999px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 650;">MO</span>
+            <span style="font-size: 13px; line-height: 18px; font-weight: 600;">Maria Oliveira</span>
+            <span style="margin-left: auto; font-size: 12px; line-height: 16px; color: var(--muted-foreground);">quarta, 22:47</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px;">
+            <div class="bubble b-lead" style="animation-delay: 100ms;">Oi! Vocês fazem clareamento? Queria marcar uma avaliação.<span class="b-time" style="color: var(--muted-foreground);">22:47</span></div>
+            <div class="pill step-in" style="animation-delay: 800ms;">
+              <span class="av live"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></span>
+              <span><span class="pill-n">Agendamento</span><span class="pill-a">Buscando horários livres</span></span>
+            </div>
+            <div class="bubble b-agent" style="animation-delay: 1600ms;">Oi, Maria! Tenho quinta às 14:30 ou às 16:00. Qual prefere?<span class="b-time" style="opacity: 0.7;">22:48</span></div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--success-soft); color: var(--success-foreground); font-size: 12px; line-height: 16px; font-weight: 600;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            Agendado em 2 minutos, sem ninguém da recepção online
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF NUMBERS -->
+<section style="background: var(--inverse); color: var(--inverse-foreground); padding: clamp(40px, 6vw, 64px) 0;">
+  <div class="wrap">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 32px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: clamp(40px, 5vw, 56px); line-height: 1; font-weight: 650; letter-spacing: -0.03em; color: var(--inverse-accent); font-variant-numeric: tabular-nums;">3 s</span>
+        <span style="font-size: 16px; line-height: 24px; font-weight: 350; color: var(--inverse-muted);">tempo médio até a primeira resposta</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: clamp(40px, 5vw, 56px); line-height: 1; font-weight: 650; letter-spacing: -0.03em; color: var(--inverse-accent); font-variant-numeric: tabular-nums;">100%</span>
+        <span style="font-size: 16px; line-height: 24px; font-weight: 350; color: var(--inverse-muted);">das conversas fora do horário viram lead</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-size: clamp(40px, 5vw, 56px); line-height: 1; font-weight: 650; letter-spacing: -0.03em; color: var(--inverse-accent); font-variant-numeric: tabular-nums;">240</span>
+        <span style="font-size: 16px; line-height: 24px; font-weight: 350; color: var(--inverse-muted);">consultas agendadas por mês, em média</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO: four portraits, staggered -->
+<section id="para-quem" class="pq-track">
+  <div class="pq-stage">
+    <div class="wrap pq-head">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 48px;">
+        <h2 class="h2" style="flex: 1 1 360px; max-width: 640px;">Feito para quem vive de agenda e de WhatsApp</h2>
+        <p class="lead" style="flex: 1 1 300px; font-size: 16px; line-height: 24px;">Quando o cliente chega pelo celular, quem responde primeiro, fecha. Os agentes cuidam dessa primeira resposta para você.</p>
+      </div>
+    </div>
+    <div class="wrap pq-cards" aria-hidden="true">
+      <div class="pq-cards-row">
+        <div class="ph pq-card"><img src="images/dentista.jpg" alt="" style="object-position: 50% 30%;"><span class="ph-cap">Dentistas</span></div>
+        <div class="ph pq-card"><img src="images/medico.jpg" alt="" style="object-position: 50% 30%;"><span class="ph-cap">Médicos</span></div>
+        <div class="ph pq-card"><img src="images/advogado.jpg" alt="" style="object-position: 50% 30%;"><span class="ph-cap">Advogados</span></div>
+        <div class="ph pq-card"><img src="images/dona.jpg" alt="" style="object-position: 50% 30%;"><span class="ph-cap">Donos de negócio</span></div>
+      </div>
+    </div>
+    <div class="pq-strip">
+      <article class="pq-panel pq-panel-1" aria-label="Dentistas">
+        <div class="ph pq-img"><img src="images/dentista.jpg" alt="Dentista sorrindo ao olhar o celular na porta do consultório" style="object-position: 50% 30%;"><span class="ph-cap pq-chip">Dentistas</span></div>
+        <div class="pq-text">
+          <span class="pq-role">Dentistas</span>
+          <h3 class="pq-h">Seu paciente pergunta o preço de madrugada</h3>
+          <p class="pq-sub">Os agentes respondem na hora, entendem o que ele precisa e já oferecem o horário livre da agenda.</p>
+          <a class="btn btn-primary" href="#contato" style="align-self: flex-start;">Ver na minha clínica</a>
+        </div>
+      </article>
+      <article class="pq-panel pq-panel-2" aria-label="Médicos">
+        <div class="ph pq-img"><img src="images/medico.jpg" alt="Médico de jaleco e estetoscópio sentado à mesa do consultório" style="object-position: 50% 30%;"></div>
+        <div class="pq-text">
+          <span class="pq-role">Médicos</span>
+          <h3 class="pq-h">Consultas marcadas, remarcadas e confirmadas</h3>
+          <p class="pq-sub">Tudo acontece no WhatsApp, sem a secretária precisar parar o que está fazendo.</p>
+          <a class="btn btn-primary" href="#contato" style="align-self: flex-start;">Ver na minha clínica</a>
+        </div>
+      </article>
+      <article class="pq-panel pq-panel-3" aria-label="Advogados">
+        <div class="ph pq-img"><img src="images/advogado.jpg" alt="Advogado de paletó em seu escritório, ao lado da janela" style="object-position: 50% 30%;"></div>
+        <div class="pq-text">
+          <span class="pq-role">Advogados</span>
+          <h3 class="pq-h">Todo cliente novo começa com uma mensagem</h3>
+          <p class="pq-sub">Quem responde primeiro, fecha. Os agentes fazem a triagem e agendam a primeira conversa.</p>
+          <a class="btn btn-primary" href="#contato" style="align-self: flex-start;">Ver na minha clínica</a>
+        </div>
+      </article>
+      <article class="pq-panel pq-panel-4" aria-label="Donos de negócio">
+        <div class="ph pq-img"><img src="images/dona.jpg" alt="Empresária segurando o celular em sua loja" style="object-position: 50% 30%;"></div>
+        <div class="pq-text">
+          <span class="pq-role">Donos de negócio</span>
+          <h3 class="pq-h">Orçamento e horário pedidos a qualquer hora</h3>
+          <p class="pq-sub">Mesmo com ninguém para atender, o cliente recebe resposta e sai com o próximo passo.</p>
+          <a class="btn btn-primary" href="#contato" style="align-self: flex-start;">Ver na minha clínica</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM: a night, told as a timeline -->
+<section class="sec" style="padding-top: 0;">
+  <div class="wrap" style="display: flex; flex-wrap: wrap; gap: 48px 80px;">
+    <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px; align-self: flex-start;">
+      <h2 class="h2">Quem responde primeiro, agenda</h2>
+      <p class="lead">O paciente que pergunta no WhatsApp quer resposta agora. Veja o que acontece com uma mensagem que chega depois do expediente.</p>
+      <div class="ph" style="aspect-ratio: 4 / 3; max-width: 440px; margin-top: 8px;"><img src="images/noite.jpg" alt="Homem no sofá à noite, olhando o celular" style="object-position: 60% 40%;"></div>
+    </div>
+    <div style="flex: 1.5 1 480px; min-width: 0; border-bottom: 1px solid var(--border);">
+      <div class="tl-row">
+        <span class="tl-time">22:47</span>
+        <div>
+          <h3 style="margin: 0 0 4px; font-size: 18px; line-height: 24px; font-weight: 650;">O paciente pergunta sobre clareamento</h3>
+          <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">Ninguém está na recepção. A mensagem fica esperando.</p>
+        </div>
+      </div>
+      <div class="tl-row">
+        <span class="tl-time">23:05</span>
+        <div>
+          <h3 style="margin: 0 0 4px; font-size: 18px; line-height: 24px; font-weight: 650;">Ele escreve para o consultório do lado</h3>
+          <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">Lá o atendimento é automático e a resposta chega na hora.</p>
+        </div>
+      </div>
+      <div class="tl-row">
+        <span class="tl-time" style="color: var(--destructive);">08:30</span>
+        <div>
+          <h3 style="margin: 0 0 4px; font-size: 18px; line-height: 24px; font-weight: 650;">Sua recepção abre e vê a mensagem</h3>
+          <p style="margin: 0 0 12px; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">O paciente já marcou a avaliação em outro lugar.</p>
+          <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--destructive-soft); color: var(--destructive); font-size: 12px; font-weight: 600;">Consulta perdida</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px 40px; padding: 24px 0 28px; border-top: 1px solid var(--border);">
+        <p style="margin: 0; flex: 1 1 240px; font-size: 15px; line-height: 22px; font-weight: 350; color: var(--muted-foreground);"><strong style="font-weight: 650; color: var(--foreground);">De dia, a recepção vira central de perguntas.</strong> Preço, endereço e horário, repetidos enquanto tem paciente na sua frente.</p>
+        <p style="margin: 0; flex: 1 1 240px; font-size: 15px; line-height: 22px; font-weight: 350; color: var(--muted-foreground);"><strong style="font-weight: 650; color: var(--foreground);">Quem pediu orçamento e sumiu esfria.</strong> Sem retorno na hora certa, o lead nunca vira consulta.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS: a path with nodes -->
+<section id="como-funciona" class="sec" style="background: var(--sidebar); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 56px;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center;">
+      <h2 class="h2" style="max-width: 720px;">Do primeiro “oi” à consulta confirmada, em três passos</h2>
+      <p class="lead">Você configura a clínica uma vez. Depois, cada conversa segue o mesmo caminho.</p>
+    </div>
+    <ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 48px 32px;">
+      <li style="position: relative; padding-top: 40px; display: flex; flex-direction: column; gap: 14px;">
+        <span aria-hidden="true" style="position: absolute; top: 6px; left: 0; right: -32px; height: 2px; background: var(--input);"></span>
+        <span aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 9999px; background: #c6ff00; box-shadow: 3px 4px 0 #647a00;"></span>
+        <span style="font-size: 13px; line-height: 18px; font-weight: 600; color: var(--muted-foreground);">Passo 1</span>
+        <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">O paciente chama no WhatsApp</h3>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">Pelo número da clínica, por um anúncio ou pelo Instagram. O Concierge recebe toda mensagem nova e entende o que a pessoa quer.</p>
+        <div class="pill" style="align-self: flex-start; margin-top: 4px;">
+          <span class="av live"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v2"/><path d="M10 4h4"/><path d="M5 17a7 7 0 0 1 14 0"/><path d="M3 20h18"/></svg></span>
+          <span><span class="pill-n">Concierge</span><span class="pill-a">Entendendo o pedido</span></span>
+        </div>
+      </li>
+      <li style="position: relative; padding-top: 40px; display: flex; flex-direction: column; gap: 14px;">
+        <span aria-hidden="true" style="position: absolute; top: 6px; left: 0; right: -32px; height: 2px; background: var(--input);"></span>
+        <span aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 9999px; background: #c6ff00; box-shadow: 3px 4px 0 #647a00;"></span>
+        <span style="font-size: 13px; line-height: 18px; font-weight: 600; color: var(--muted-foreground);">Passo 2</span>
+        <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">Os agentes qualificam e buscam horário</h3>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">Eles respondem com o que a sua clínica oferece, entendem o interesse e mostram apenas os horários que estão livres na agenda.</p>
+        <div class="pill" style="align-self: flex-start; margin-top: 4px;">
+          <span class="av live"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></span>
+          <span><span class="pill-n">Agendamento</span><span class="pill-a">Buscando horários livres</span></span>
+        </div>
+      </li>
+      <li style="position: relative; padding-top: 40px; display: flex; flex-direction: column; gap: 14px;">
+        <span aria-hidden="true" style="position: absolute; top: 6px; left: 0; right: 0; height: 2px; background: var(--input);"></span>
+        <span aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 9999px; background: #c6ff00; box-shadow: 3px 4px 0 #647a00;"></span>
+        <span style="font-size: 13px; line-height: 18px; font-weight: 600; color: var(--muted-foreground);">Passo 3</span>
+        <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">A consulta cai na agenda</h3>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">O paciente recebe a confirmação, é lembrado antes da consulta e o lead muda para “Agendado” no seu CRM. Se precisar de gente, a recepção assume.</p>
+        <div style="align-self: flex-start; margin-top: 4px; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 8px; background: var(--success-soft); color: var(--success-foreground); font-size: 12px; font-weight: 600;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          Agendado
+        </div>
+      </li>
+    </ol>
+    <div style="display: flex; justify-content: center;">
+      <a class="btn btn-primary" href="#contato">Ver na minha clínica</a>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS: bento -->
+<section id="agentes" class="sec">
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 40px;">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 48px;">
+      <h2 class="h2" style="flex: 1 1 360px; max-width: 640px;">Uma equipe de agentes, cada um com uma função</h2>
+      <p class="lead" style="flex: 1 1 300px; font-size: 16px; line-height: 24px;">Em vez de um robô genérico que tenta fazer tudo, cada agente cuida de uma etapa e passa a conversa adiante quando é a vez do próximo.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+        <div class="tile" style="flex: 3 1 420px; background: #c6ff00; color: #141414;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="width: 44px; height: 44px; border-radius: 9999px; background: #141414; color: #c6ff00; display: inline-flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v2"/><path d="M10 4h4"/><path d="M5 17a7 7 0 0 1 14 0"/><path d="M3 20h18"/></svg></span>
+            <h3>Concierge</h3>
+          </div>
+          <p style="max-width: 460px;">A porta de entrada. Recebe toda mensagem nova, entende o pedido e manda a conversa para o agente certo.</p>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+              <span style="background: rgba(255,255,255,0.7); border-radius: 8px; padding: 6px 12px; font-size: 14px; font-weight: 600;">“Quero agendar”</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <span style="background: #141414; color: #ffffff; border-radius: 8px; padding: 6px 12px; font-size: 14px; font-weight: 600;">Agendamento</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+              <span style="background: rgba(255,255,255,0.7); border-radius: 8px; padding: 6px 12px; font-size: 14px; font-weight: 600;">“Quanto custa?”</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <span style="background: #141414; color: #ffffff; border-radius: 8px; padding: 6px 12px; font-size: 14px; font-weight: 600;">Base de conhecimento</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+              <span style="background: rgba(255,255,255,0.7); border-radius: 8px; padding: 6px 12px; font-size: 14px; font-weight: 600;">“Quero falar com alguém”</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              <span style="background: #141414; color: #ffffff; border-radius: 8px; padding: 6px 12px; font-size: 14px; font-weight: 600;">Recepção</span>
+            </div>
+          </div>
+        </div>
+        <div class="tile" style="flex: 2 1 320px; background: var(--inverse); color: var(--inverse-foreground);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="width: 44px; height: 44px; border-radius: 9999px; background: #c6ff00; color: #141414; display: inline-flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></span>
+            <h3>Agendamento</h3>
+          </div>
+          <p style="color: var(--inverse-muted);">Consulta a disponibilidade, reserva o horário e confirma com o paciente, direto na agenda.</p>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: auto;">
+            <span style="border: 1px solid var(--inverse-line); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600; text-align: center;">Qui 16:00</span>
+            <span style="background: #c6ff00; color: #141414; border: 1px solid #c6ff00; border-radius: 8px; padding: 10px 12px; font-size: 14px; font-weight: 650; text-align: center;">Qui 14:30</span>
+            <span style="border: 1px solid var(--inverse-line); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600; text-align: center;">Sex 09:00</span>
+            <span style="border: 1px solid var(--inverse-line); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600; text-align: center;">Sex 11:30</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+        <div class="tile" style="flex: 1 1 280px; background: var(--card); border: 1px solid var(--border);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="av" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg></span>
+            <h3 style="font-size: 20px;">Base de conhecimento</h3>
+          </div>
+          <p style="color: var(--muted-foreground); font-size: 15px; line-height: 22px;">Responde com o que a sua clínica realmente oferece: serviços, preços, políticas e endereço.</p>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+            <div class="mini-l">Vocês atendem aos sábados?</div>
+            <div class="mini-a">Atendemos [DIAS E HORÁRIOS DA CLÍNICA]. Posso reservar um horário?</div>
+          </div>
+        </div>
+        <div class="tile" style="flex: 1 1 280px; background: var(--accent); color: var(--accent-foreground);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="width: 36px; height: 36px; border-radius: 9999px; background: var(--accent-foreground); color: var(--accent); display: inline-flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span>
+            <h3 style="font-size: 20px;">Reativação</h3>
+          </div>
+          <p style="font-size: 15px; line-height: 22px;">Chama de volta quem sumiu: pacientes parados e leads que pararam de responder voltam para a conversa.</p>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
+            <span style="font-size: 13px; line-height: 18px; font-weight: 600;">Carla Souza · última consulta há [XX] meses</span>
+            <div class="mini-a" style="align-self: flex-start; border-radius: 14px 14px 14px 4px;">Oi, Carla! Faz um tempo que não nos vemos. Quer agendar sua revisão?</div>
+          </div>
+        </div>
+        <div class="tile" style="flex: 1 1 280px; background: var(--warning-soft); color: var(--warning-foreground);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="width: 36px; height: 36px; border-radius: 9999px; background: var(--warning-foreground); color: var(--warning-soft); display: inline-flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/></svg></span>
+            <h3 style="font-size: 20px;">Recepção</h3>
+          </div>
+          <p style="font-size: 15px; line-height: 22px;">Quando a hora é do toque humano, o agente chama sua equipe com o contexto da conversa. Ninguém repete nada.</p>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; background: rgba(255,255,255,0.55); border-radius: 12px; padding: 12px 14px;">
+            <span style="font-size: 12px; line-height: 16px; font-weight: 650;">Contexto repassado</span>
+            <span style="font-size: 14px; line-height: 20px; font-weight: 600;">Pediu clareamento e prefere quinta à tarde.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">E a Triagem organiza quem chega por redes sociais e anúncios, para sua equipe falar primeiro com quem tem interesse real.</p>
+  </div>
+</section>
+
+<!-- ORCHESTRATION: many agents, one brain -->
+<section id="cerebro" class="sec" style="background: var(--sidebar); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 48px;">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 720px;">
+      <h2 class="h2">Vários agentes, um único cérebro</h2>
+      <p class="lead">Cada agente faz o seu trabalho, mas todos leem e escrevem na mesma memória do paciente. O que um descobre, o próximo já sabe, e a recepção recebe tudo pronto.</p>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 32px 24px; align-items: stretch;">
+      <div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-size: 13px; line-height: 18px; font-weight: 600; color: var(--muted-foreground);">Mensagem que chega</span>
+        <div class="card" style="display: flex; flex-direction: column; gap: 14px; padding: 20px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 36px; height: 36px; border-radius: 9999px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 650;">MO</span>
+            <div>
+              <div style="font-size: 15px; line-height: 20px; font-weight: 600;">Maria Oliveira</div>
+              <div style="font-size: 12px; line-height: 16px; color: var(--muted-foreground);">WhatsApp · 22:47</div>
+            </div>
+          </div>
+          <div class="mini-l">Oi! Vocês fazem clareamento? Pode ser quinta à tarde?</div>
+        </div>
+        <p style="margin: 0; font-size: 14px; line-height: 21px; font-weight: 350; color: var(--muted-foreground);">O orquestrador lê a mensagem e decide, passo a passo, qual agente entra em ação.</p>
+      </div>
+
+      <div style="flex: 1.3 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-size: 13px; line-height: 18px; font-weight: 600; color: var(--muted-foreground);">Orquestrador e agentes</span>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div class="orch-node">
+            <span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v2"/><path d="M10 4h4"/><path d="M5 17a7 7 0 0 1 14 0"/><path d="M3 20h18"/></svg></span>
+            <span><span style="display: block; font-size: 15px; line-height: 20px; font-weight: 650;">Concierge</span><span class="d">Entende o pedido e roteia</span></span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left: 22px; color: var(--muted-foreground);"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          <div class="orch-node" style="animation-delay: 2s;">
+            <span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg></span>
+            <span><span style="display: block; font-size: 15px; line-height: 20px; font-weight: 650;">Base de conhecimento</span><span class="d">Consulta serviços e informações da clínica</span></span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left: 22px; color: var(--muted-foreground);"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          <div class="orch-node" style="animation-delay: 4s;">
+            <span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></span>
+            <span><span style="display: block; font-size: 15px; line-height: 20px; font-weight: 650;">Agendamento</span><span class="d">Busca e reserva o horário livre</span></span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left: 22px; color: var(--muted-foreground);"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+          <div class="orch-node" style="animation-delay: 6s;">
+            <span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/></svg></span>
+            <span><span style="display: block; font-size: 15px; line-height: 20px; font-weight: 650;">Recepção</span><span class="d">Recebe o contexto completo para assumir</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex: 1.2 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-size: 13px; line-height: 18px; font-weight: 600; color: var(--muted-foreground);">Cérebro único: memória compartilhada</span>
+        <div style="flex: 1; background: var(--inverse); color: var(--inverse-foreground); border-radius: 16px; padding: 24px; display: flex; flex-direction: column;">
+          <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 16px;">
+            <span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 9999px; background: #c6ff00; box-shadow: 3px 4px 0 #647a00; flex: none;"></span>
+            <span style="font-size: 18px; line-height: 24px; font-weight: 650;">Memória de Maria Oliveira</span>
+          </div>
+          <div class="mem-row">
+            <span style="font-size: 13px; line-height: 20px; color: var(--inverse-muted);">Paciente</span>
+            <span style="font-size: 15px; line-height: 20px; font-weight: 600;">Maria Oliveira</span>
+          </div>
+          <div class="mem-row">
+            <span style="font-size: 13px; line-height: 20px; color: var(--inverse-muted);">Canal</span>
+            <span style="font-size: 15px; line-height: 20px; font-weight: 600;">WhatsApp</span>
+          </div>
+          <div class="mem-row mem1">
+            <span style="font-size: 13px; line-height: 20px; color: var(--inverse-muted);">Interesse</span>
+            <span><span style="display: block; font-size: 15px; line-height: 20px; font-weight: 600;">Clareamento</span><span style="display: block; font-size: 12px; line-height: 18px; color: var(--inverse-muted);">Registrado pelo Concierge</span></span>
+          </div>
+          <div class="mem-row mem2">
+            <span style="font-size: 13px; line-height: 20px; color: var(--inverse-muted);">Serviço</span>
+            <span><span style="display: block; font-size: 15px; line-height: 20px; font-weight: 600;">Informações da clínica enviadas</span><span style="display: block; font-size: 12px; line-height: 18px; color: var(--inverse-muted);">Registrado pela Base de conhecimento</span></span>
+          </div>
+          <div class="mem-row mem3">
+            <span style="font-size: 13px; line-height: 20px; color: var(--inverse-muted);">Horário</span>
+            <span><span style="display: block; font-size: 15px; line-height: 20px; font-weight: 600;">Quinta, 14:30, reservado</span><span style="display: block; font-size: 12px; line-height: 18px; color: var(--inverse-muted);">Registrado pelo Agendamento</span></span>
+          </div>
+          <div class="mem-row mem4">
+            <span style="font-size: 13px; line-height: 20px; color: var(--inverse-muted);">Recepção</span>
+            <span><span style="display: block; font-size: 15px; line-height: 20px; font-weight: 600;">Contexto pronto para assumir</span><span style="display: block; font-size: 12px; line-height: 18px; color: var(--inverse-muted);">Nenhuma pergunta repetida ao paciente</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px;">
+      <a class="btn btn-primary" href="#contato">Ver na minha clínica</a>
+      <span style="font-size: 13px; line-height: 19px; color: var(--muted-foreground);">Simulação ilustrativa de uma conversa</span>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<section id="integracoes" class="sec">
+  <div class="wrap" style="display: flex; flex-wrap: wrap; gap: 48px 80px;">
+    <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 24px; align-self: flex-start;">
+      <h2 class="h2">Conecta com o que a sua clínica já usa</h2>
+      <p class="lead">Seus pacientes continuam nos canais de sempre. Os agentes trabalham por trás, ligados à sua agenda.</p>
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 8px; padding: 24px; border: 1px solid var(--foreground); border-radius: 16px; background: var(--card); box-shadow: 8px 9px 0 #c6ff00;">
+        <span class="mtp" style="align-self: flex-start;">
+          <span class="mtp-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
+          <span><span class="mtp-t">Meta Tech Partner</span><span class="mtp-s">Parceiro de tecnologia da Meta</span></span>
+        </span>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">Somos Meta Tech Partner. [BENEFÍCIO PARA O CLIENTE: por exemplo, integração oficial com o WhatsApp Business e suporte direto]</p>
+      </div>
+    </div>
+    <div style="flex: 1.5 1 480px; min-width: 0; border-bottom: 1px solid var(--border);">
+      <div class="int-row">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="width: 44px; height: 44px; border-radius: 12px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></span>
+          <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">Clinicorp</h3>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">Os agentes consultam os horários livres e agendam direto na agenda, sem digitação da recepção.</p>
+        <span style="justify-self: start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--secondary); color: var(--foreground); font-size: 12px; font-weight: 600;">Agenda</span>
+      </div>
+      <div class="int-row">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="width: 44px; height: 44px; border-radius: 12px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span>
+          <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">WhatsApp</h3>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">O canal principal: as conversas com os pacientes, com a recepção no mesmo histórico dos agentes.</p>
+        <span style="justify-self: start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--secondary); color: var(--foreground); font-size: 12px; font-weight: 600;">Canal</span>
+      </div>
+      <div class="int-row">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="width: 44px; height: 44px; border-radius: 12px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span>
+          <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">Telegram</h3>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">Atenda também por Telegram, com o mesmo cérebro e a mesma memória do paciente.</p>
+        <span style="justify-self: start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--secondary); color: var(--foreground); font-size: 12px; font-weight: 600;">Canal</span>
+      </div>
+      <div class="int-row">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="width: 44px; height: 44px; border-radius: 12px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
+          <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">Meta</h3>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">Leads dos anúncios e mensagens do Instagram entram no CRM e na mesma conversa dos agentes.</p>
+        <span style="justify-self: start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--secondary); color: var(--foreground); font-size: 12px; font-weight: 600;">Anúncios e Instagram</span>
+      </div>
+      <div class="int-row">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="width: 44px; height: 44px; border-radius: 12px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+          <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">Gmail</h3>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">[DESCRIÇÃO: o que os agentes fazem com o Gmail, por exemplo enviar confirmações por e-mail]</p>
+        <span style="justify-self: start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--secondary); color: var(--foreground); font-size: 12px; font-weight: 600;">E-mail</span>
+      </div>
+      <div class="int-row">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="width: 44px; height: 44px; border-radius: 12px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span>
+          <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">Google Calendar</h3>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">[DESCRIÇÃO: por exemplo, consultas agendadas aparecem na agenda do dentista]</p>
+        <span style="justify-self: start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--secondary); color: var(--foreground); font-size: 12px; font-weight: 600;">Agenda</span>
+      </div>
+      <div class="int-row">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="width: 44px; height: 44px; border-radius: 12px; background: var(--muted); display: inline-flex; align-items: center; justify-content: center; flex: none;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span>
+          <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">Microsoft Outlook</h3>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--muted-foreground);">[DESCRIÇÃO: o que os agentes fazem com o Outlook, e-mail e/ou agenda]</p>
+        <span style="justify-self: start; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--secondary); color: var(--foreground); font-size: 12px; font-weight: 600;">E-mail e agenda</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CRM: dark band -->
+<section id="crm" class="sec" style="background: var(--inverse); color: var(--inverse-foreground);">
+  <div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; gap: 48px 64px;">
+    <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 24px;">
+      <h2 class="h2">Você enxerga o funil inteiro e assume quando quiser</h2>
+      <p style="margin: 0; max-width: 520px; font-size: 18px; line-height: 28px; font-weight: 350; color: var(--inverse-muted); text-wrap: pretty;">Tudo o que os agentes fazem fica registrado em um só lugar, do primeiro contato à consulta.</p>
+      <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px;">
+        <li style="display: flex; gap: 12px; align-items: flex-start;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>
+          <span style="font-size: 16px; line-height: 24px;"><strong style="font-weight: 650;">Funil de conversão</strong> <span style="color: var(--inverse-muted); font-weight: 350;">com a taxa de cada etapa, de Novo até Ganho.</span></span>
+        </li>
+        <li style="display: flex; gap: 12px; align-items: flex-start;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>
+          <span style="font-size: 16px; line-height: 24px;"><strong style="font-weight: 650;">Precisa de você</strong> <span style="color: var(--inverse-muted); font-weight: 350;">mostra as conversas que aguardam a recepção e quem está há mais de 24 horas sem resposta.</span></span>
+        </li>
+        <li style="display: flex; gap: 12px; align-items: flex-start;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>
+          <span style="font-size: 16px; line-height: 24px;"><strong style="font-weight: 650;">Assumir conversa</strong> <span style="color: var(--inverse-muted); font-weight: 350;">com um clique. O agente entrega o contexto e a recepção continua de onde parou.</span></span>
+        </li>
+        <li style="display: flex; gap: 12px; align-items: flex-start;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>
+          <span style="font-size: 16px; line-height: 24px;"><strong style="font-weight: 650;">Agenda, profissionais e lembretes</strong> <span style="color: var(--inverse-muted); font-weight: 350;">configurados por você, para os agentes só oferecerem o que existe.</span></span>
+        </li>
+      </ul>
+    </div>
+
+    <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 16px; color: var(--foreground);">
+      <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <h3 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 650; letter-spacing: -0.01em;">Funil de conversão</h3>
+          <span style="font-size: 12px; line-height: 16px; color: var(--muted-foreground);">Exemplo ilustrativo</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; line-height: 18px; font-weight: 600; margin-bottom: 6px;"><span>Novo</span><span style="color: var(--muted-foreground); font-weight: 450;">100%</span></div>
+            <div style="height: 12px; border-radius: 8px; background: var(--muted); overflow: hidden;"><div style="width: 100%; height: 100%; background: var(--foreground); opacity: 0.85;"></div></div>
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; line-height: 18px; font-weight: 600; margin-bottom: 6px;"><span>Engajado</span><span style="color: var(--muted-foreground); font-weight: 450;">[XX]%</span></div>
+            <div style="height: 12px; border-radius: 8px; background: var(--muted); overflow: hidden;"><div style="width: 74%; height: 100%; background: var(--foreground); opacity: 0.85;"></div></div>
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; line-height: 18px; font-weight: 600; margin-bottom: 6px;"><span>Qualificado</span><span style="color: var(--muted-foreground); font-weight: 450;">[XX]%</span></div>
+            <div style="height: 12px; border-radius: 8px; background: var(--muted); overflow: hidden;"><div style="width: 52%; height: 100%; background: var(--foreground); opacity: 0.85;"></div></div>
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; line-height: 18px; font-weight: 600; margin-bottom: 6px;"><span>Agendado</span><span style="color: var(--muted-foreground); font-weight: 450;">[XX]%</span></div>
+            <div style="height: 12px; border-radius: 8px; background: var(--muted); overflow: hidden;"><div style="width: 34%; height: 100%; background: #c6ff00;"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 8px; background: var(--warning-soft); color: var(--warning-foreground); font-size: 12px; font-weight: 600;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/></svg>
+            Aguardando recepção
+          </span>
+          <span style="font-size: 15px; line-height: 20px; font-weight: 600;">Carlos Mendes</span>
+        </div>
+        <span class="btn btn-primary btn-sm">Assumir conversa</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL: portrait + quote -->
+<section class="sec" style="background: var(--accent); color: var(--accent-foreground);">
+  <div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; gap: 40px 64px;">
+    <div style="flex: 0 1 340px; min-width: min(240px, 100%);">
+      <div class="ph" style="aspect-ratio: 4 / 5; background: var(--card);"><span class="ph-cap">IMG-07 · Cliente real: dono(a) de clínica, 35–55 anos · 4:5</span></div>
+    </div>
+    <figure style="flex: 1 1 420px; min-width: 0; margin: 0; display: flex; flex-direction: column; gap: 28px;">
+      <blockquote style="margin: 0; font-size: clamp(28px, 3.6vw, 44px); line-height: 1.15; font-weight: 650; letter-spacing: -0.02em; text-wrap: balance;">“[DEPOIMENTO REAL: o que mudou na clínica depois que os agentes começaram a atender o WhatsApp]”</blockquote>
+      <figcaption style="font-size: 16px; line-height: 22px; font-weight: 650;">[NOME] <span style="font-weight: 450;">· [CARGO], [NOME DA CLÍNICA]</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="precos" class="sec">
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 40px;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center;">
+      <h2 class="h2" style="max-width: 640px;">Um plano com tudo o que a sua recepção precisa</h2>
+    </div>
+    <div style="background: var(--inverse); color: var(--inverse-foreground); border-radius: 16px; padding: clamp(24px, 4vw, 48px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 40px; max-width: 1040px; width: 100%; margin: 0 auto;">
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <span style="font-size: 15px; line-height: 20px; font-weight: 600; color: var(--inverse-muted);">[NOME DO PLANO]</span>
+        <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: clamp(44px, 6vw, 72px); line-height: 1; font-weight: 650; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--inverse-accent);">R$ [PREÇO]</span>
+          <span style="font-size: 16px; line-height: 24px; font-weight: 350; color: var(--inverse-muted);">/ mês</span>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 350; color: var(--inverse-muted);">[CONDIÇÃO: teste grátis, taxa de implantação, garantia ou fidelidade]</p>
+        <a class="btn btn-lime" href="#contato" style="align-self: flex-start; height: 52px; padding: 0 26px; font-size: 16px;">Ver na minha clínica</a>
+      </div>
+      <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px;">
+        <li style="display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 24px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>Agentes de IA no WhatsApp: Concierge, Agendamento e Base de conhecimento</li>
+        <li style="display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 24px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>CRM de leads, conversas e consultas com funil de conversão</li>
+        <li style="display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 24px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>Agenda com profissionais, serviços e lembretes</li>
+        <li style="display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 24px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>Reativação de pacientes e leads parados (Recall)</li>
+        <li style="display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 24px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>Passagem para a recepção com o contexto da conversa</li>
+        <li style="display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 24px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px; color: var(--inverse-accent);"><path d="M20 6 9 17l-5-5"/></svg>[SUPORTE E IMPLANTAÇÃO: o que está incluso]</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="sec" style="padding-top: 0;">
+  <div class="wrap" style="display: flex; flex-wrap: wrap; gap: 48px 64px;">
+    <div style="flex: 1 1 280px; min-width: 0; align-self: flex-start;">
+      <h2 class="h2">O que os donos de clínica perguntam antes de começar</h2>
+    </div>
+    <div style="flex: 2 1 480px; min-width: 0; border-top: 1px solid var(--border);">
+      <details class="faq" open>
+        <summary>A IA pode falar algo errado com meus pacientes?
+          <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <p>Os agentes respondem com a base de conhecimento que você cadastra: serviços, preços, políticas e horários. Quando a pergunta foge disso, ou o paciente prefere falar com uma pessoa, o agente chama a recepção em vez de inventar uma resposta.</p>
+      </details>
+      <details class="faq">
+        <summary>Minha recepção perde o controle das conversas?
+          <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <p>Não. Toda conversa fica visível no CRM e a recepção pode usar “Assumir conversa” a qualquer momento. O painel “Precisa de você” mostra o que está aguardando atendimento humano.</p>
+      </details>
+      <details class="faq">
+        <summary>Funciona com a agenda que a clínica já usa?
+          <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <p>[LISTE AQUI AS INTEGRAÇÕES DE AGENDA E SISTEMAS COMPATÍVEIS]. Os horários, profissionais e serviços que os agentes oferecem vêm da configuração de agenda da sua clínica.</p>
+      </details>
+      <details class="faq">
+        <summary>Preciso trocar o número de WhatsApp da clínica?
+          <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <p>[CONFIRME: conectamos o número atual da clínica ou um número novo].</p>
+      </details>
+      <details class="faq">
+        <summary>Quanto tempo leva para começar a atender?
+          <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <p>[PRAZO DE IMPLANTAÇÃO]. Antes de ligar para os pacientes, você pode testar os agentes em um ambiente de teste e ver como eles respondem.</p>
+      </details>
+      <details class="faq">
+        <summary>Como ficam os dados dos pacientes?
+          <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <p>[DESCREVA AQUI A POLÍTICA DE PRIVACIDADE E A ADEQUAÇÃO À LGPD].</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA: lime -->
+<section id="contato" class="sec" style="position: relative; overflow: hidden; background: #c6ff00; color: #141414;">
+  <span aria-hidden="true" style="position: absolute; right: -120px; top: -120px; width: 420px; height: 420px; border-radius: 9999px; background: rgba(255,255,255,0.35); box-shadow: 28px 32px 0 rgba(100,122,0,0.3);"></span>
+  <div class="wrap" style="position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 48px 64px;">
+    <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 20px;">
+      <h2 style="margin: 0; font-size: clamp(34px, 4.4vw, 56px); line-height: 1.04; font-weight: 650; letter-spacing: -0.025em; text-wrap: balance;">A próxima consulta da sua clínica pode estar no WhatsApp agora</h2>
+      <p style="margin: 0; max-width: 520px; font-size: 18px; line-height: 28px; font-weight: 400; color: rgba(20,20,20,0.82); text-wrap: pretty;">Deixe seus dados e a nossa equipe mostra os agentes funcionando com a rotina da sua clínica. [PRAZO DE RESPOSTA].</p>
+    </div>
+    <form id="lead-form" novalidate style="flex: 1 1 380px; min-width: 0; max-width: 520px; background: var(--card); color: var(--foreground); border-radius: 16px; padding: clamp(20px, 3vw, 32px); display: flex; flex-direction: column; gap: 16px;">
+      <div>
+        <label class="field-l" for="f-nome">Seu nome</label>
+        <input class="field-i" id="f-nome" name="nome" type="text" placeholder="Como podemos te chamar" autocomplete="name" required aria-describedby="e-nome">
+        <p class="field-e" id="e-nome" role="alert" hidden></p>
+      </div>
+      <div>
+        <label class="field-l" for="f-whats">WhatsApp</label>
+        <input class="field-i" id="f-whats" name="whatsapp" type="tel" inputmode="tel" placeholder="+55 48 99999-9999" autocomplete="tel" required aria-describedby="e-whats">
+        <p class="field-e" id="e-whats" role="alert" hidden></p>
+      </div>
+      <div>
+        <label class="field-l" for="f-clinica">Nome da clínica</label>
+        <input class="field-i" id="f-clinica" name="clinica" type="text" placeholder="Clínica odontológica" autocomplete="organization">
+      </div>
+      <div id="lead-ok" role="status" hidden style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; background: var(--success-soft); color: var(--success-foreground); font-size: 14px; line-height: 20px; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M20 6 9 17l-5-5"/></svg>Recebemos seus dados. Falamos com você pelo WhatsApp em breve.</div>
+      <button class="btn btn-primary" type="submit" style="height: 52px; font-size: 16px; width: 100%;">Ver na minha clínica</button>
+      <p style="margin: 0; font-size: 13px; line-height: 19px; color: var(--muted-foreground); text-align: center;">Sem compromisso. Falamos pelo WhatsApp.</p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer style="border-top: 1px solid var(--border); padding: 40px 0;">
+  <div class="wrap" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px;">
+    <div style="display: inline-flex; align-items: center; gap: 4px;">
+      <span style="font-size: 20px; line-height: 24px; font-weight: 750; letter-spacing: -0.04em;">nody lab</span>
+      <span aria-hidden="true" style="width: 8px; height: 8px; margin-top: 10px; border-radius: 9999px; background: #c6ff00; box-shadow: 2px 3px 0 #647a00; display: inline-block;"></span>
+    </div>
+    <nav aria-label="Rodapé" style="display: flex; flex-wrap: wrap; gap: 8px 24px;">
+      <a class="nav-a" href="#para-quem">Para quem</a>
+      <a class="nav-a" href="#como-funciona">Como funciona</a>
+      <a class="nav-a" href="#agentes">Agentes</a>
+      <a class="nav-a" href="#integracoes">Integrações</a>
+      <a class="nav-a" href="#precos">Preços</a>
+      <a class="nav-a" href="#faq">Perguntas</a>
+      <a class="nav-a" href="#contato">Contato</a>
+    </nav>
+    <span class="mtp">
+      <span class="mtp-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
+      <span><span class="mtp-t">Meta Tech Partner</span><span class="mtp-s">Parceiro de tecnologia da Meta</span></span>
+    </span>
+    <span style="font-size: 13px; line-height: 19px; color: var(--muted-foreground);">© 2026 Nody Lab. [LINKS DE PRIVACIDADE E TERMOS]</span>
+  </div>
+</footer>
+
+</div>
+<script>
+(function () {
+  var form = document.getElementById('lead-form');
+  if (!form) return;
+  var WA = '5551999905455';
+  var nome = document.getElementById('f-nome');
+  var whats = document.getElementById('f-whats');
+  var clinica = document.getElementById('f-clinica');
+  var eNome = document.getElementById('e-nome');
+  var eWhats = document.getElementById('e-whats');
+  var ok = document.getElementById('lead-ok');
+  function setErr(input, el, msg) {
+    el.textContent = msg; el.hidden = !msg;
+    if (msg) { input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', el.id); }
+    else { input.removeAttribute('aria-invalid'); }
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var n = nome.value.trim();
+    var d = whats.value.replace(/\D/g, '');
+    var badN = n.length < 2, badW = d.length < 10;
+    setErr(nome, eNome, badN ? 'Informe seu nome para podermos te chamar.' : '');
+    setErr(whats, eWhats, badW ? 'Digite o WhatsApp com DDD, por exemplo +55 48 99999-9999.' : '');
+    ok.hidden = true;
+    if (badN || badW) return;
+    var c = clinica.value.trim();
+    var msg = 'Olá! Sou ' + n + (c ? ' da ' + c : '') + ' e quero ver os agentes da Nody Lab funcionando na minha clínica. Meu WhatsApp: ' + whats.value.trim();
+    ok.hidden = false;
+    window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  });
+})();
+</script>
+</body>
+</html>
